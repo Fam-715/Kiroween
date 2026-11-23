@@ -52,6 +52,7 @@ SessionEvent
   id: UUID (pk)
   session_id: UUID (fk Session)
   item_id: UUID (fk TapeItem) | None
+  client_event_id: UUID (unique per session; duplicates are ignored)
   type: Literal["complete", "skip", "side_complete", "stop"]
   at: datetime
   health_delta: int
@@ -70,26 +71,62 @@ Side capacity in minutes: `C60 → 30`, `C90 → 45`, `C120 → 60`.
 ### `domain/health.py`
 ```python
 DELTAS = {
-    "skip_interlude": -15,
-    "skip_track": -5,
-    "abandon": -20,          # stop with > 50% planned time remaining
+    "skip_interlude": -12,
+    "skip_track": -4,
+    "abandon": -20,          # stop with > 50% planned time remaining (Glossary: abandoned)
     "complete_interlude": +5,
     "clean_side": +10,       # side completed with no skips
 }
-def apply(health: int, event: HealthEvent) -> int      # clamps to [0, 100]
+def apply(health: int, event: HealthEvent) -> int      # clamps to [0, 100] per event
+def apply_all(health: int, events: Sequence[HealthEvent]) -> int  # in order, clamp each
 def condition(health: int) -> Condition                 # Mint/Worn/Warped/Haunted/Dead
 ```
-The same table is mirrored in `frontend/src/domain/health.ts` for instant UI prediction.
+A stop with ≤ 50% of planned time remaining has no delta. The same table is mirrored in
+`frontend/src/domain/health.ts` for instant UI prediction.
+
+### `domain/effects.py` (mirrored in `frontend/src/domain/effects.ts`)
+`effects_for(health: int, reduced_motion: bool) -> EffectSettings` is a pure function of
+health (through `condition`). Numeric thresholds (Requirements 6 and 7):
+
+| Condition | Hiss gain | Reel wobble (± % speed) | Pitch wobble (± cents) | Colour bleed (px) | Flicker (Hz) | Ghost whispers |
+|---|---|---|---|---|---|---|
+| Mint (80–100) | 0 | 0 | 0 | 0 | 0 | off |
+| Worn (50–79) | 0.02 | 2 | 0 | 0 | 0 | off |
+| Warped (20–49) | 0.05 | 6 | 25 | 2 | 4 | off |
+| Haunted (1–19) | 0.10 | 12 | 60 | 4 | 8 | one burst every 20–45 s, 1.5–3 s long, gain 0.08 |
+| Dead (0) | not playable | | | | | |
+
+With `reduced_motion` true: reel wobble, reel spin and flicker are 0; colour bleed and
+shadow figures stay as static cues; audio effects (hiss, pitch wobble, whispers) are
+unchanged. Intensity values never decrease as health decreases. Condition text is always
+rendered.
+
+### `domain/offline.py` (mirrored in `frontend/src/domain/eventQueue.ts`)
+Pure queue logic: `enqueue(queue, event)`, `next_retry_delay(attempt) = min(1 * 2**attempt,
+30)` seconds, `ack(queue, event_id)`, and `predict_health(base, queue)`. Each event carries a
+client-generated `event_id` (UUID).
 
 ### `planner/`
 ```python
 class PlannerProvider(Protocol):
-    def plan(self, tasks: list[TaskIn], length: TapeLength) -> PlanOut: ...
+    def plan(self, tasks: list[TaskIn], length: TapeLength, style: FocusStyle) -> PlanOut: ...
 ```
-- `rule_based.py` (default): split each task into tracks of at most 25 minutes
-  (minimum 10; remainders under 10 merge into the previous part), insert a 5-minute
-  interlude after each track, fill Side A then Side B, never split a track across sides,
-  drop the trailing interlude on a side when it doesn't fit, and report tasks that don't fit.
+`FocusStyle` presets: `pomodoro = (track 25, interlude 5)` (default), `deep_work = (track 50,
+interlude 10)`.
+- `rule_based.py` (default):
+  1. `effective_track = min(style.track, side_capacity(length))` (Deep work on C60 → 30).
+  2. Round each task estimate up to at least 10 minutes.
+  3. Split a task longer than `effective_track` into `n = ceil(minutes / effective_track)`
+     parts of near-equal length (sizes differ by at most 1). Every part is then between
+     10 and `effective_track`, and parts sum to the estimate. Parts are named
+     `"<task> (part N)"`.
+  4. Process tasks in input order. Try to place all of a task's parts (each followed by an
+     interlude of `style.interlude`, never between tracks of different sides, never
+     splitting a track across sides) on Side A then Side B. If the whole task does not fit,
+     discard the attempt, add it to `left_out`, and continue with the next task. Parts of one
+     task may span the A/B boundary.
+  5. Drop a trailing interlude on a side when it does not fit.
+  Placement is atomic per task, so a left-out task never leaves partial tracks.
 - `llm.py` (optional, enabled when `PLANNER_PROVIDER=llm` and an API key is set): asks the
   model for a JSON plan, then validates it with `validate_tape`. Any error or invalid
   plan falls back to the rule-based planner.
@@ -105,9 +142,9 @@ All endpoints require `X-Listener-Id` (UUID v4) and return 400 if it is missing/
 | GET | `/api/tapes/{id}` | Tape with items and liner notes stats |
 | PUT | `/api/tapes/{id}` | Replace title/items (only if no session is in progress) |
 | DELETE | `/api/tapes/{id}` | Delete tape and its sessions |
-| POST | `/api/planner` | `{tasks, length}` → `{plan, left_out}` (not saved) |
+| POST | `/api/planner` | `{tasks, length, style?}` → `{plan, left_out}` (not saved; `style` defaults to `pomodoro`) |
 | POST | `/api/tapes/{id}/sessions` | Start a session (409 if tape is Dead) |
-| POST | `/api/sessions/{id}/events` | `{type, item_id}` → `{health, condition}` |
+| POST | `/api/sessions/{id}/events` | `{event_id, type, item_id}` → `{health, condition}`; idempotent on `event_id` |
 | POST | `/api/sessions/{id}/stop` | End session; applies abandon rule; returns summary |
 
 Validation errors return 422 with a list of `{rule, side, message}` so the Recorder can
@@ -131,6 +168,11 @@ persisted to `localStorage` so a reload resumes correctly.
 
 ### Audio engine (`src/audio/`)
 - One `AudioContext` created on first PLAY.
+- Numeric parameters: master volume 0–1 (default 0.5); mute forces gain 0; interlude fade
+  uses a linear ramp of exactly 2 s out and 2 s in; sound-bed gain never exceeds volume.
+  `fade_gain(t, start, end, duration)` is a pure function in `domain/effects` so it can be
+  property-tested (monotonic, bounded by start and end).
+- Effect amounts come from `effects_for` (table above).
 - Sound beds: brown noise (filtered white noise buffer), rain (noise + random droplet
   envelopes), lo-fi loop (simple oscillators + low-pass + vinyl crackle).
 - Condition effects chain: `bed → wobble (LFO on playbackRate/detune) → hiss (noise
@@ -144,18 +186,30 @@ flicker; Haunted = vignette, shadow silhouettes in the cassette window. All effe
 `useReducedMotion`.
 
 ## Error handling
-- Network failure during play: queue events in memory and retry; the timer never stops
-  because of the network.
+- Network failure during play (Requirement 9): the timer and audio never stop. Events get
+  a `client_event_id`, are appended to a queue persisted in `localStorage`, and are
+  delivered in order with exponential backoff (1 s doubling to 30 s). The backend ignores
+  duplicate IDs. While events are pending the UI shows predicted health labelled
+  "unsynced"; once the queue drains, it replaces it with the API value. A 4xx response
+  drops the event. The queue resumes on the next page load.
 - Planner LLM failure: silent fallback to rule-based, with a small "DJ improvised" note.
 
 ## Testing strategy
 - **Property-based (Hypothesis, backend)**
   - Any plan from the rule-based planner passes `validate_tape`.
-  - The planner preserves task order and never schedules more focus minutes than requested.
-  - `apply` always returns a value in [0, 100] for any sequence of events.
+  - The planner preserves task order, every track ≤ `min(style.track, side_capacity)` and
+    ≥ 10, parts of a task sum to `max(estimate, 10)`, included + left-out names equal the
+    input, and a left-out task would not have fitted when it was tried.
+  - `apply_all` always returns a value in [0, 100] for any sequence of events.
   - `condition` is monotonic: higher health never gives a worse condition.
+  - `effects_for` intensity never increases with health; reduced motion zeroes wobble and
+    flicker.
+  - Event application is idempotent per `client_event_id`; any duplicate/failure pattern
+    gives the same final health as applying each event once in order.
 - **Property-based (fast-check, frontend)**
   - Frontend `health.ts` matches the same deltas and clamping for random event sequences.
+  - `eventQueue.ts`: delivery order equals occurrence order, retry delay is in [1, 30] s and
+    non-decreasing, queue empties after all acks, `fade_gain` is monotonic and bounded.
   - Countdown never goes negative and reaches zero exactly at `itemEndsAt`.
 - **Unit/API (pytest)**: each endpoint, listener scoping, 400/409/422 paths.
 - **Component (Vitest + RTL)**: keyboard controls, reduced-motion fallbacks, Recorder
