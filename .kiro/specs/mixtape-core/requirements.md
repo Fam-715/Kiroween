@@ -103,7 +103,7 @@ so that I don't have to plan the session myself.
    a task unless all of its parts fit.
 9. WHEN no LLM provider is configured THEN the system SHALL use the rule-based planner and
    the feature SHALL still work.
-10. WHEN an LLM provider is configured and returns an invalid plan or fails THEN the system
+10. (Optional — ship only if time allows) WHEN an LLM provider is configured and returns an invalid plan or fails THEN the system
     SHALL fall back to the rule-based planner.
 11. WHEN a plan is generated THEN the user SHALL be able to edit it before saving it, and
     the edited plan SHALL be validated by the Requirement 2 rules.
@@ -196,8 +196,8 @@ bad shape, so that the feedback is felt, not just read.
 2. WHILE a tape is Worn THEN the system SHALL add light tape hiss and slight reel wobble.
 3. WHILE a tape is Warped THEN the system SHALL add pitch wobble to audio, colour bleed and
    flicker to the player.
-4. WHILE a tape is Haunted THEN the system SHALL add occasional ghost whispers (generated
-   audio) and shadow figures in the player window.
+4. WHILE a tape is Haunted THEN the system SHALL add shadow figures in the player window and
+   (Optional — ship only if time allows) occasional ghost whispers (generated audio).
 5. WHERE the user has `prefers-reduced-motion` enabled THEN the system SHALL replace motion
    effects with static visual cues and SHALL keep the condition visible as text.
 6. The current condition SHALL always be shown as text, not only by colour or animation.
@@ -234,8 +234,8 @@ I can see my progress.
 1. The system SHALL show all of the listener's tapes on a shelf, each with title, length and
    condition.
 2. WHEN the user opens a tape THEN the system SHALL show its liner notes as a J-card:
-   number of sessions, total focus minutes, tracks completed and skipped, and a health
-   history chart.
+   number of sessions, total focus minutes, tracks completed and skipped, and
+   (Optional — ship only if time allows) a health history chart.
 3. WHEN a session ends THEN the system SHALL record its start time, end time, completed
    items, skipped items, and health before and after.
 4. WHEN the user confirms deletion of a tape THEN the system SHALL delete the tape and its
@@ -254,20 +254,20 @@ so that a bad network never interrupts my focus or loses my progress.
 
 1. WHEN the API is unreachable during a session THEN the timer, controls and audio SHALL
    keep working without interruption.
-2. WHEN a session event cannot be delivered THEN the frontend SHALL add it to a pending
+2. (Optional — ship only if time allows) WHEN a session event cannot be delivered THEN the frontend SHALL add it to a pending
    queue, persisted in local storage, with a client-generated event ID.
-3. WHILE pending events exist THEN the frontend SHALL retry delivery with exponential
+3. (Optional — ship only if time allows) WHILE pending events exist THEN the frontend SHALL retry delivery with exponential
    backoff (1 s, doubling to a maximum of 30 s) and SHALL deliver events in the order they
    occurred.
 4. WHEN the same event ID is received more than once THEN the backend SHALL apply it only
    once.
-5. WHILE the API is unreachable THEN the frontend SHALL show a predicted health value
+5. (Optional — ship only if time allows) WHILE the API is unreachable THEN the frontend SHALL show a predicted health value
    labelled "unsynced" in text.
-6. WHEN the connection returns and all pending events are delivered THEN the frontend SHALL
+6. (Optional — ship only if time allows) WHEN the connection returns and all pending events are delivered THEN the frontend SHALL
    replace the predicted health with the value returned by the API.
-7. IF the user closes or reloads the page with pending events THEN the system SHALL
+7. (Optional — ship only if time allows) IF the user closes or reloads the page with pending events THEN the system SHALL
    resume delivery of the persisted queue on the next visit.
-8. IF a pending event is rejected with an HTTP 4xx response THEN the
+8. (Optional — ship only if time allows) IF a pending event is rejected with an HTTP 4xx response THEN the
    frontend SHALL drop it and SHALL NOT retry it.
 
 _Property (PBT): for any event sequence and any pattern of delivery failures and

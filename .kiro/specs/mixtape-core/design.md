@@ -123,7 +123,7 @@ All endpoints require `X-Listener-Id` (UUID v4) and return 400 if it is missing/
 | DELETE | `/api/tapes/{id}` | Delete tape and its sessions |
 | POST | `/api/planner` | `{tasks, length, style?}` → `{plan, left_out}` (not saved; `style` defaults to `pomodoro`) |
 | POST | `/api/tapes/{id}/sessions` | Start a session (409 if tape is Dead) |
-| POST | `/api/sessions/{id}/events` | `{event_id, type, item_id}` → `{health, condition}`; idempotent on `event_id` |
+| POST | `/api/sessions/{id}/events` | `{client_event_id, type, item_id}` → `{health, condition}`; idempotent on `client_event_id` |
 | POST | `/api/sessions/{id}/stop` | End session; applies abandon rule; returns summary |
 
 Validation errors return 422 with a list of `{rule, side, message}` so the Recorder can

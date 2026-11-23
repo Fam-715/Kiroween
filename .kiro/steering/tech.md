@@ -38,6 +38,8 @@ inclusion: always
   Space = play/pause, Arrow keys = REW/FF.
 - Audio never autoplays; it starts only after the user presses PLAY.
 - Config via environment variables only (`.env`, never committed). Provide `.env.example`.
+- Edit files with Kiro's file editing tools, not PowerShell or shell scripts. Shell commands
+  are only for running builds, tests and dev servers.
 
 ## Commands
 - Backend: `cd backend && uv run uvicorn app.main:app --reload` and `uv run pytest`
