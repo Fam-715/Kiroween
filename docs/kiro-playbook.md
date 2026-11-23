@@ -42,4 +42,9 @@ Web Audio code, or Kiro CLI for running tasks).
 ## Write-up log
 | Date | Who | Kiro feature | What happened / what we learned |
 |---|---|---|---|
-| | | | |
+| 2026-11-23 | Fam | Steering | Wrote product.md, tech.md and structure.md (always included). Kiro understood the product, stack and vocabulary (tape, side, track, interlude, health) from the first chat. |
+| 2026-11-23 | Fam | Spec review | Used the Review button on requirements.md. Kiro rebalanced tape health (skip break -15 → -12) and added focus styles (Pomodoro 25/5, Deep work 50/10). |
+| 2026-11-23 | Fam | Spec / PBT | Asked Kiro to make the requirements testable. It added a property-based test note to every requirement (e.g. health always 0–100, any generated plan is valid). |
+| 2026-11-23 | Fam | Spec review | Our review caught edge cases: Deep work tracks (50 min) don't fit on a C60 side (30 min), and tasks under 10 min break the minimum track length. Kiro fixed the planner rules and added example tests for both. |
+| 2026-11-23 | Fam | Spec / tasks | Cut scope to fit 11 days. Kiro reorganised tasks into 3 MVP phases with a demo checkpoint, plus an Optional list. Moved effects and the offline queue from the backend to the frontend. |
+| 2026-11-23 | Fam | Steering | Kiro damaged spec files twice by editing Markdown with PowerShell scripts (it recovered both times). We added a steering rule to tech.md: edit files with Kiro's file tools only. |
