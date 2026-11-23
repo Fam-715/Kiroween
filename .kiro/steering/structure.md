@@ -10,22 +10,28 @@ inclusion: always
 ├── backend/
 │   ├── app/
 │   │   ├── main.py         # FastAPI app, CORS, router registration
-│   │   ├── api/            # Routers: tapes.py, sessions.py, planner.py
-│   │   ├── domain/         # Pure logic: health.py, schedule.py, sides.py
-│   │   ├── planner/        # PlannerProvider interface, rule_based.py, llm.py
+│   │   ├── api/            # Routers: tapes.py, sessions.py, recalls.py, settings.py
+│   │   │                   #   (Optional: planner.py)
+│   │   ├── domain/         # Pure logic: schedule.py, strength.py, recall.py, clock.py,
+│   │   │                   #   sample.py
+│   │   ├── planner/        # Optional: PlannerProvider interface, rule_based.py, llm.py
 │   │   ├── models.py       # SQLModel tables
 │   │   ├── schemas.py      # Pydantic request/response models
 │   │   └── db.py           # Engine and session dependency
 │   ├── tests/              # pytest + Hypothesis, mirrors app/ layout
 │   ├── pyproject.toml
-│   └── .env.example
+│   └── .env.example        # includes ALLOW_TIME_WARP
 ├── frontend/
 │   ├── src/
-│   │   ├── components/     # CassettePlayer/, TapeShelf/, JCard/, Recorder/
-│   │   ├── domain/         # Pure TS logic mirrored from backend (health prediction)
-│   │   ├── audio/          # Web Audio engine: noise, rain, lofi loop, distortion
+│   │   ├── components/     # CassettePlayer/, RecallPanel/, TapeShelf/, JCard/,
+│   │   │                   #   Recorder/, Settings/, Toast/
+│   │   ├── domain/         # Pure TS logic: strength.ts, clock.ts (mirrored from backend),
+│   │   │                   #   effects.ts (frontend only), eventQueue.ts (Optional)
+│   │   ├── audio/          # Web Audio engine (noise, rain, lofi), recordingStore.ts
+│   │   │                   #   (IndexedDB), decayedPlayback.ts
 │   │   ├── api/            # Typed API client
-│   │   ├── hooks/          # useTapePlayer, useListenerId, useReducedMotion
+│   │   ├── hooks/          # useTapePlayer, useRecall, useListenerId, useReducedMotion,
+│   │   │                   #   useVirtualClock
 │   │   ├── styles/
 │   │   └── main.tsx
 │   ├── tests/
@@ -39,4 +45,7 @@ inclusion: always
 - Python: `snake_case` files and functions, `PascalCase` classes.
 - TypeScript: `PascalCase` component folders with `index.tsx`, `camelCase` functions.
 - Domain vocabulary is shared between frontend and backend: **tape**, **side**, **track**
-  (focus block), **interlude** (break), **session** (one play-through), **health**.
+  (a study topic with key terms), **interlude** (break), **session** (one play-through),
+  **recall** (one REC attempt), **score**, **strength** (0–100), **stability** (days),
+  **condition** (Mint/Worn/Warped/Haunted/Dead), **due**, **virtual time**.
+- The old term "health" is retired. Use strength for a track and condition for a tape.

@@ -1,24 +1,42 @@
-# 📼 Cursed Cassette
+# 📼 Cursed Cassette: Study Tapes That Decay As You Forget
 
-> Your study session is a mixtape. Treat it well, or it will haunt you.
+> A cassette recorder for studying, back from the dead. Record what you learned in your own
+> voice. Forget it, and the tape decays, warps and haunts you until you review.
 
 **Kiroween 2026 · Resurrection category**
 
-Cursed Cassette resurrects the portable cassette player and the hand-made mixtape as a
-focus timer for students. Plan a study session as a mixtape — tracks are focus blocks,
-interludes are breaks — and play it on a haunted cassette player. Skip your breaks or
-abandon a session and the tape warps, hisses and eventually becomes a ghost.
+Cursed Cassette resurrects what made cassettes special, recording and decay, and uses them
+as a study method. Record a tape of study topics, focus on them, then press REC and explain
+each topic from memory. Each track has a memory strength that fades over time. Review it
+and the tape is restored. Forget it and the tape warps, hisses and haunts your shelf.
 
-## Features (MVP)
-- **Record a mixtape**: C60 / C90 / C120 tapes with Side A and Side B.
-- **Mixtape DJ**: turn a task list into a session plan automatically.
-- **Cassette controls**: PLAY, PAUSE, STOP, REW, FF, and flipping the tape.
-- **Tape health**: your habits decide whether the tape stays Mint or turns Haunted.
-- **Generated focus audio**: brown noise, rain and a lo-fi loop made in the browser.
-  No copyrighted music.
-- **Liner notes**: J-card history for every tape on your shelf.
+## How it works
+1. **Record a tape**: C60 / C90 / C120 with Side A and Side B. Each track is a topic with
+   3–5 key terms. Interludes are breaks.
+2. **Play to focus**: PLAY, PAUSE, STOP, REW, FF and the flip to Side B. Skip a break and
+   "the tape remembers".
+3. **REC to recall**: explain the topic from memory for 30–90 seconds. We score how many
+   key terms you mentioned.
+4. **Decay**: strength follows a forgetting curve. Good recalls make a memory last longer.
+5. **Decayed playback**: your own recording plays back with hiss, wobble and distortion as
+   you forget.
+6. **Restore**: re-record a track to bring it back. The app shows when to review next.
+7. **Haunted shelf**: tapes with tracks due look haunted. Forgotten tapes become ghosts.
 
-No sign-up needed. Open the app and press PLAY.
+No sign-up needed. Open the app and start recording.
+
+## Try it quickly (for judges)
+In **Settings**:
+- **Load sample tape**: creates a tape with tracks that are Mint, due, Warped and Haunted.
+- **Demo mode**: allows tracks as short as 1 minute, so you can reach REC fast.
+- **Demo time warp**: makes 1 day pass every minute, so you can watch tapes decay. Off by
+  default and clearly labelled.
+
+## Privacy
+Your voice recordings stay in your browser (IndexedDB). Only the recall text is sent to the
+server to be scored, and it is not stored. Your browser's speech recognition may send audio
+to its vendor's service (Chrome and Edge). If your browser does not support it, you can
+type your recall instead.
 
 ## Live demo
 _Coming soon._
@@ -32,6 +50,7 @@ cp .env.example .env
 uv run uvicorn app.main:app --reload
 uv run pytest
 ```
+Set `ALLOW_TIME_WARP=true` in `.env` to enable the Demo time warp toggle.
 
 **Frontend** (Node 20+)
 ```bash
