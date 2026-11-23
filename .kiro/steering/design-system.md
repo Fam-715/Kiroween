@@ -1,59 +1,94 @@
 ---
 inclusion: fileMatch
-fileMatchPattern: 'frontend/src/**/*.{tsx,css}'
+fileMatchPattern:
+  - "frontend/src/**/*.tsx"
+  - "frontend/src/**/*.css"
 ---
 
-# Design System — "Dead Format" Cassette Aesthetic
+# Design System — Cursed Cassette
 
-All frontend UI follows this system. The product looks like a haunted vintage cassette collection: near-black plum interfaces, cassette-plastic surfaces, and condition-based visual effects.
+## 1. Visual mood
+An original retro-horror take on the 1980s portable cassette player: a machine found in an
+abandoned dorm. Dark, nostalgic, a little funny, never gory. All artwork is drawn from
+scratch (SVG/CSS). No brand names, no logos, no traced artwork, no "Walkman" or similar
+trademarks — the component is always "cassette player". The horror always reflects app
+state: a forgotten topic looks scarier, so the spooky design serves the function.
 
-## Colour Tokens
+## 2. Colour palette (Tailwind tokens)
+Define in `tailwind.config.ts`. Never use inline hex colours in components.
 
-Use these names in CSS custom properties / Tailwind tokens.
-
-| Token | Value | Usage |
+| Token | Hex | Usage |
 |---|---|---|
-| `--color-bg` | near-black plum, e.g. `#1A1220` | Page background |
-| `--color-surface` | off-white cassette plastic, e.g. `#EDE6D6` | Cards, cassette bodies, panels |
-| `--color-label-orange` | orange, e.g. `#E8722C` | Primary labels, category tags |
-| `--color-label-teal` | teal, e.g. `#2C8C8C` | Secondary labels, info tags |
-| `--color-lcd-green` | LCD green, e.g. `#7DF07D` | Readouts, counters, LCD text |
-| `--color-danger` | blood red, e.g. `#8A0B0B` | Danger ONLY — destructive actions, "Dead" condition, irreversible states |
+| `plum-950` | `#1A1220` | Page background (near-black plum) |
+| `plum-900` | `#241A2E` | Raised panels, shelves |
+| `plastic-100` | `#EDE6D6` | Cassette body, off-white plastic |
+| `plastic-300` | `#D9CFBA` | Plastic edges, worn detail |
+| `label-orange` | `#E8722C` | Primary labels, Side A, category tags |
+| `label-teal` | `#2C8C8C` | Secondary labels, Side B, info tags |
+| `lcd-green` | `#7DF07D` | LCD digits, countdown, strength readout |
+| `danger` | `#8A0B0B` | Danger only: Dead condition, destructive actions |
 
-Never use `--color-danger` for decoration, emphasis, or non-destructive UI. Blood-red is reserved for danger.
+Text must meet WCAG AA contrast (4.5:1). `lcd-green` and off-white on `plum-950` pass;
+`label-orange`/`label-teal` on dark backgrounds need their lighter variants (`#F5935C`,
+`#5FBDBD`) for text. Danger is never the only signal — pair it with an icon or text.
 
-## Fonts
-
+## 3. Typography
 | Font | Role |
 |---|---|
-| **VT323** | LCD-style readouts, counters, track numbers, status displays |
-| **Special Elite** | Typed label text: tape names, categories, buttons |
-| **Caveat** | Handwritten J-card notes, user annotations, margin scrawl |
-| **Creepster** | Titles only (logo, page titles). Never body text or UI labels |
+| **VT323** | LCD digits, countdown, counters, track numbers |
+| **Special Elite** | Typed labels: tape titles, buttons, tags, condition text |
+| **Caveat** | Handwritten J-card notes and annotations |
+| **Creepster** | Titles only (logo, page titles). Never body or UI labels |
 
-Pair with a neutral fallback stack for long-form reading if needed; the themed faces are for identity elements, not paragraphs.
+Long-form reading uses a plain neutral sans; the themed faces carry identity, not paragraphs.
 
-## Spacing
+## 4. Cassette player component
+- Cassette drawn as inline SVG: two reels that spin during playback; spin speed and wobble
+  are driven by the track's condition via `effectsFor`.
+- LCD strip shows the countdown (VT323, `lcd-green`), side indicator (A/B) and a small
+  "TIME WARP ON" flag when active.
+- Buttons: PLAY, PAUSE, STOP, REW, FF, REC — each 48×48px minimum, keyboard reachable,
+  with visible focus and an `aria-label`. Space = play/pause, arrows = REW/FF, R = REC.
+- REC is visually distinct (blood-red ring) but labelled in text.
+- Track map under the player; skipping a break glitches affected tracks for 1.2 s
+  (static outline under reduced motion) with the "The tape remembers…" toast.
+- Audio never autoplays; the mic opens only after the REC press.
 
-- Base unit: **8px**. All margins, padding, and gaps are multiples of it (8, 16, 24, 32, 48).
-- Cassette cards: 24px internal padding, 16px gap in grids.
-- Page gutters: 32px desktop, 16px mobile.
-- Touch targets: minimum 48×48px.
+## 5. Effects by condition
+Driven by `domain/effects.ts`: `effectsFor(strength, reducedMotion)`. Values never decrease
+as strength decreases; audio effects are unchanged by reduced motion; visual wobble, spin and
+flicker are 0 under reduced motion; colour bleed stays as a static cue. Condition text is
+always rendered (Special Elite), never animation-only.
 
-## Visual Effects per Condition
+| Condition (strength) | Visual | Audio |
+|---|---|---|
+| Mint (80–100) | Clean plastic, subtle sheen, no filters | No hiss, no wobble |
+| Worn (50–79) | Subtle grain, slightly faded colour | Hiss 0.02, distortion 0.05 |
+| Warped (20–49) | 1–3° skew, chromatic aberration (2px bleed), 4 Hz flicker | Hiss 0.05, speed wobble ±6%, pitch ±25 cents, distortion 0.20 |
+| Haunted (1–19) | Vignette, shadow silhouettes in cassette window, 4px bleed, 8 Hz flicker | Hiss 0.10, speed wobble ±12%, pitch ±60 cents, distortion 0.45, optional whisper burst |
+| Dead (0) | Monochrome, blood-red "Dead" stamp, no animation | Static only (noise 0.15, voice 0) |
 
-Each cassette in the collection has a condition. Apply only the effects listed for that condition:
+Flicker never exceeds 8 Hz (≥125 ms per change), keeping it below photosensitive-trigger
+rates.
 
-- **Mint** — Clean: no filters, subtle plastic sheen (soft highlight gradient), perfectly aligned.
-- **Worn** — Slightly faded colours (reduced saturation ~80%), light scuff overlay, small corner wear.
-- **Warped** — Slight skew/rotation (1–3°), uneven drop shadow, hue shift on the plastic, slight wobble on hover.
-- **Haunted** — Soft green glow, occasional drifting specks, faint whisper-glyphs at low opacity, subtle breathing scale animation.
-- **Dead** — Monochrome/greyscale, heavy damage (cracks, tears), blood-red condition stamp, no animation.
+## 6. Motion rules (Framer Motion)
+- Use Framer Motion for reel spin, tape wobble, J-card flips, shelf ghost drift and the
+  break-skip glitch. Keep animations short (150–400 ms, glitch 1.2 s).
+- Every animation must respect `prefers-reduced-motion` via `useReducedMotion`: disable
+  wobble, spin, flicker and drift; state changes stay visible through colour and static
+  effects. The condition text is always visible without animation.
+- Transitions use `ease-out` for entering, `ease-in` for exiting; no bounce on controls.
+- The Haunted breathing/scale effect is subtle (≤2%) and off under reduced motion.
 
-## Accessibility Rules (required, not optional)
+## 7. Layout and spacing
+- Base unit 8px; margins, padding and gaps are multiples (8, 16, 24, 32, 48).
+- Player centred with 32px page gutters (16px mobile); cassette cards 24px padding,
+  16px grid gap.
+- Shelf is a responsive grid of cassette spines (min 200px), due tapes badged "N due",
+  ghost tapes translucent with the "Forgotten" label.
 
-1. **Condition is always shown as text.** Never rely on the visual effect alone to convey condition — every card includes a visible text label (e.g. "Worn") in Special Elite. Effects are decoration; the text is the information.
-2. **Reduced motion:** honour `prefers-reduced-motion: reduce`. Disable all wobble, flicker, drift, and breathing animations; keep static condition effects (desaturation, greyscale, glow) but remove anything that moves or pulses.
-3. **Flicker/flash animations must run at 8 Hz or less** to stay below photosensitive-triggering frequencies. Any flickering effect (Haunted, Dead transitions) must have a period of at least 125 ms between intensity changes.
-4. Maintain at least WCAG AA contrast (4.5:1) for text; LCD green on near-black plum passes, but never place orange or teal text below AA on dark backgrounds without a lighter variant.
-5. Danger actions combine colour with an icon or text so blood-red is never the only signal.
+**Do:** condition as text, `effectsFor` as the single source of effect values, Tailwind
+tokens for colour, keyboard controls with `aria-label`s, humour in copy.
+
+**Don't:** brand names or logos, inline hex colours, gore, autoplaying audio, effects above
+8 Hz flicker, danger red outside danger contexts, animation as the only carrier of meaning.
