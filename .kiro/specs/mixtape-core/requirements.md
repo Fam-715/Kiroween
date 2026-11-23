@@ -162,6 +162,8 @@ memorable consequence, so that I look after my memory as well as my time.
    with a static highlight on the affected tracks, and SHALL still show the message as text.
 9. The penalty factors SHALL be defined as named constants in one place in the domain code,
    so they can be tuned without changing other logic.
+10. WHEN a stop is requested for a session that has already ended THEN the system SHALL
+    return the saved summary and SHALL NOT apply a penalty again.
 
 _Property (PBT): for any stability in 0.25–60 and any penalty, the result is in 0.25–60 and
 is not greater than the input; penalties apply only to tracks completed in the session;
@@ -238,7 +240,9 @@ what I need to review.
    lower.
 10. The tape condition SHALL come from the mean of its recorded tracks' strengths, rounded
     half up, and SHALL be Mint when no track is recorded.
-11. WHEN a tape is a ghost THEN the system SHALL mark it as Dead.
+11. The tape condition SHALL be Dead only when the tape is a ghost. IF the rounded mean of
+    the recorded tracks' strengths is 0 and at least one recorded track is not Dead THEN the
+    tape condition SHALL be Haunted.
 12. The backend SHALL be the source of truth for strength, stability and scores. The
     frontend MAY predict strength between API calls from the values the API returned, and
     SHALL replace the prediction with the API value after each response.
@@ -250,8 +254,9 @@ _Property (PBT): for any base, stability and elapsed time, strength is an intege
 strength never increases as time increases (decay is monotonic); stability after any recall
 or penalty is within 0.25–60; for the same state and elapsed time, a higher score never
 produces a lower stability; the condition function is total and monotonic in strength; the
-tape strength lies between the lowest and highest track strength; a track is due exactly when
-its unrounded strength is 70 or lower._
+tape strength lies between the lowest and highest track strength, and is at least 1 unless
+every recorded track is 0; the tape condition is Dead exactly when the tape is a ghost; a
+track is due exactly when its unrounded strength is 70 or lower._
 
 ### Requirement 7: Decayed playback
 
@@ -369,8 +374,8 @@ went, so that I know what to review and can see my progress.
 
 _Property (PBT): for any set of recorded sessions, total focus minutes equals the sum of
 completed track durations, and completed plus skipped counts never exceed the number of
-items in the tape. The due count equals the number of recorded tracks with strength 70 or
-lower._
+items in the tape. The due count equals the number of recorded tracks with unrounded
+strength 70 or lower._
 
 ### Requirement 12: Demo mode, time warp and sample tape
 
@@ -383,7 +388,8 @@ demo, so that I can try the whole loop in a few minutes.
 2. WHILE Demo mode is on THEN the system SHALL accept track durations from 1 to 50
    minutes, and the UI SHALL show a "Demo mode" label as text.
 3. WHEN Demo mode is turned off THEN tapes already saved with shorter tracks SHALL remain
-   playable, and new tracks SHALL need at least 10 minutes.
+   playable and editable, tracks whose duration is unchanged SHALL stay valid when the tape
+   is saved, and new or changed tracks SHALL need at least 10 minutes.
 4. The backend SHALL read `ALLOW_TIME_WARP` from the environment, and the deployed backend
    SHALL set it to true.
 5. WHERE `ALLOW_TIME_WARP` is true THEN the UI SHALL show a clearly labelled "Demo time
