@@ -84,28 +84,6 @@ def condition(health: int) -> Condition                 # Mint/Worn/Warped/Haunt
 A stop with ≤ 50% of planned time remaining has no delta. The same table is mirrored in
 `frontend/src/domain/health.ts` for instant UI prediction.
 
-### `domain/effects.py` (mirrored in `frontend/src/domain/effects.ts`)
-`effects_for(health: int, reduced_motion: bool) -> EffectSettings` is a pure function of
-health (through `condition`). Numeric thresholds (Requirements 6 and 7):
-
-| Condition | Hiss gain | Reel wobble (± % speed) | Pitch wobble (± cents) | Colour bleed (px) | Flicker (Hz) | Ghost whispers |
-|---|---|---|---|---|---|---|
-| Mint (80–100) | 0 | 0 | 0 | 0 | 0 | off |
-| Worn (50–79) | 0.02 | 2 | 0 | 0 | 0 | off |
-| Warped (20–49) | 0.05 | 6 | 25 | 2 | 4 | off |
-| Haunted (1–19) | 0.10 | 12 | 60 | 4 | 8 | one burst every 20–45 s, 1.5–3 s long, gain 0.08 |
-| Dead (0) | not playable | | | | | |
-
-With `reduced_motion` true: reel wobble, reel spin and flicker are 0; colour bleed and
-shadow figures stay as static cues; audio effects (hiss, pitch wobble, whispers) are
-unchanged. Intensity values never decrease as health decreases. Condition text is always
-rendered.
-
-### `domain/offline.py` (mirrored in `frontend/src/domain/eventQueue.ts`)
-Pure queue logic: `enqueue(queue, event)`, `next_retry_delay(attempt) = min(1 * 2**attempt,
-30)` seconds, `ack(queue, event_id)`, and `predict_health(base, queue)`. Each event carries a
-client-generated `event_id` (UUID).
-
 ### `planner/`
 ```python
 class PlannerProvider(Protocol):
@@ -127,7 +105,8 @@ interlude 10)`.
      task may span the A/B boundary.
   5. Drop a trailing interlude on a side when it does not fit.
   Placement is atomic per task, so a left-out task never leaves partial tracks.
-- `llm.py` (optional, enabled when `PLANNER_PROVIDER=llm` and an API key is set): asks the
+- `llm.py` (**Optional** scope; the `PlannerProvider` interface stays in the MVP so it can
+  be added later; enabled when `PLANNER_PROVIDER=llm` and an API key is set): asks the
   model for a JSON plan, then validates it with `validate_tape`. Any error or invalid
   plan falls back to the rule-based planner.
 
@@ -159,7 +138,7 @@ show them inline.
   condition), LCD-style countdown, chunky PLAY/PAUSE/STOP/REW/FF buttons, side indicator,
   flip animation.
 - `TapeShelf/`: grid of cassette spines; Dead tapes render as translucent ghosts.
-- `JCard/`: fold-out liner notes with stats and a health history sparkline.
+- `JCard/`: fold-out liner notes with stats; the health history sparkline is Optional.
 
 ### `useTapePlayer` hook
 State machine: `idle → playing ⇄ paused → flipping → playing → finished | stopped`.
@@ -170,14 +149,38 @@ persisted to `localStorage` so a reload resumes correctly.
 - One `AudioContext` created on first PLAY.
 - Numeric parameters: master volume 0–1 (default 0.5); mute forces gain 0; interlude fade
   uses a linear ramp of exactly 2 s out and 2 s in; sound-bed gain never exceeds volume.
-  `fade_gain(t, start, end, duration)` is a pure function in `domain/effects` so it can be
-  property-tested (monotonic, bounded by start and end).
-- Effect amounts come from `effects_for` (table above).
+  `fadeGain` (frontend `domain/effects.ts`) is pure so it can be property-tested.
+- Effect amounts come from `effectsFor` (table below).
 - Sound beds: brown noise (filtered white noise buffer), rain (noise + random droplet
   envelopes), lo-fi loop (simple oscillators + low-pass + vinyl crackle).
 - Condition effects chain: `bed → wobble (LFO on playbackRate/detune) → hiss (noise
   gain) → bitcrush-ish waveshaper → master gain`. Effect amounts are a function of
-  condition. Ghost whispers in Haunted: band-passed noise bursts with a slow envelope.
+  condition. Ghost whispers in Haunted (Optional): band-passed noise bursts with a slow envelope.
+
+### `frontend/src/domain/effects.ts` (frontend only, no backend counterpart)
+`effectsFor(health: number, reducedMotion: boolean): EffectSettings` is a pure function of
+health (through `condition`). Numeric thresholds (Requirements 6 and 7):
+
+| Condition | Hiss gain | Reel wobble (± % speed) | Pitch wobble (± cents) | Colour bleed (px) | Flicker (Hz) | Ghost whispers (Optional) |
+|---|---|---|---|---|---|---|
+| Mint (80–100) | 0 | 0 | 0 | 0 | 0 | off |
+| Worn (50–79) | 0.02 | 2 | 0 | 0 | 0 | off |
+| Warped (20–49) | 0.05 | 6 | 25 | 2 | 4 | off |
+| Haunted (1–19) | 0.10 | 12 | 60 | 4 | 8 | one burst every 20–45 s, 1.5–3 s long, gain 0.08 |
+| Dead (0) | not playable | | | | | |
+
+With `reducedMotion` true: reel wobble, reel spin and flicker are 0; colour bleed and
+shadow figures stay as static cues; audio effects (hiss, pitch wobble, whispers) are
+unchanged. Intensity values never decrease as health decreases. Condition text is always
+rendered.
+
+`fadeGain(t, start, end, duration)` is a pure function in the same module (monotonic,
+bounded by start and end) used by the audio engine for the 2 s interlude fade.
+
+### `frontend/src/domain/eventQueue.ts` (frontend only, Optional)
+Pure queue logic for the full offline mode: `enqueue(queue, event)`,
+`nextRetryDelay(attempt) = min(1 * 2**attempt, 30)` seconds, `ack(queue, eventId)` and
+`predictHealth(base, queue)`. The MVP uses only a simple retry (see Error handling).
 
 ### Visual theme
 Dark plum/black background, cassette in off-white plastic with orange and teal labels, LCD
@@ -186,13 +189,15 @@ flicker; Haunted = vignette, shadow silhouettes in the cassette window. All effe
 `useReducedMotion`.
 
 ## Error handling
-- Network failure during play (Requirement 9): the timer and audio never stop. Events get
-  a `client_event_id`, are appended to a queue persisted in `localStorage`, and are
-  delivered in order with exponential backoff (1 s doubling to 30 s). The backend ignores
-  duplicate IDs. While events are pending the UI shows predicted health labelled
-  "unsynced"; once the queue drains, it replaces it with the API value. A 4xx response
-  drops the event. The queue resumes on the next page load.
-- Planner LLM failure: silent fallback to rule-based, with a small "DJ improvised" note.
+- Network failure during play, MVP: the timer and audio never stop. Each event carries a
+  `client_event_id` and is retried a few times at a fixed interval (for example every 5 s,
+  in order) while the session is open. The backend ignores duplicate IDs, so retries are
+  safe. When a response arrives the frontend shows the API health.
+- Network failure, Optional (full Requirement 9): the queue is persisted in `localStorage`,
+  delivered in order with exponential backoff (1 s doubling to 30 s), predicted health is
+  labelled "unsynced", a 4xx drops the event, and the queue resumes on the next page load.
+- Planner LLM failure (Optional feature): silent fallback to rule-based, with a small
+  "DJ improvised" note.
 
 ## Testing strategy
 - **Property-based (Hypothesis, backend)**
@@ -202,14 +207,14 @@ flicker; Haunted = vignette, shadow silhouettes in the cassette window. All effe
     input, and a left-out task would not have fitted when it was tried.
   - `apply_all` always returns a value in [0, 100] for any sequence of events.
   - `condition` is monotonic: higher health never gives a worse condition.
-  - `effects_for` intensity never increases with health; reduced motion zeroes wobble and
-    flicker.
   - Event application is idempotent per `client_event_id`; any duplicate/failure pattern
     gives the same final health as applying each event once in order.
 - **Property-based (fast-check, frontend)**
   - Frontend `health.ts` matches the same deltas and clamping for random event sequences.
-  - `eventQueue.ts`: delivery order equals occurrence order, retry delay is in [1, 30] s and
-    non-decreasing, queue empties after all acks, `fade_gain` is monotonic and bounded.
+  - `effects.ts`: `effectsFor` intensity never increases with health; reduced motion zeroes
+    wobble and flicker; `fadeGain` is monotonic and bounded; gain is 0 when muted.
+  - Optional: `eventQueue.ts` delivery order equals occurrence order, retry delay is in
+    [1, 30] s and non-decreasing, queue empties after all acks.
   - Countdown never goes negative and reaches zero exactly at `itemEndsAt`.
 - **Unit/API (pytest)**: each endpoint, listener scoping, 400/409/422 paths.
 - **Component (Vitest + RTL)**: keyboard controls, reduced-motion fallbacks, Recorder
