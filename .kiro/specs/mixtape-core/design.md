@@ -80,13 +80,15 @@ Session
   tape_id: UUID (fk Tape, cascade delete)
   started_at: datetime (real time)
   ended_at: datetime | None
+  abandoned: bool (default false; set by the stop endpoint)
+  stop_penalty: list[{track_id, stability_before, stability_after}] (saved by the stop endpoint)
 
 SessionEvent
   id: UUID (pk)
   session_id: UUID (fk Session, cascade delete)
   item_id: UUID (fk TapeItem) | None
   client_event_id: UUID (unique per session; duplicates are ignored)
-  type: Literal["complete", "skip", "stop"]
+  type: Literal["complete", "skip"]
   at: datetime (real time)
   penalty: list[{track_id, stability_before, stability_after}]
 ```
@@ -99,10 +101,12 @@ time. Session timestamps use real time.
 ### `domain/schedule.py`
 - `side_capacity(length) -> int`
 - `min_track_minutes(demo_mode) -> int` (10, or 1 in Demo mode)
-- `validate_side(items, demo_mode) -> list[RuleViolation]`: total ≤ capacity, no adjacent
-  tracks, durations in range, track names present, 3–5 unique (ignoring case) key terms of
-  1–40 characters.
-- `validate_tape(tape, demo_mode) -> list[RuleViolation]`
+- `validate_side(items, demo_mode, unchanged_ids=frozenset()) -> list[RuleViolation]`:
+  total ≤ capacity, no adjacent tracks, durations in range, track names present, 3–5 unique
+  (ignoring case) key terms of 1–40 characters. A track in `unchanged_ids` (same id and same
+  minutes as the saved tape) is exempt from the 10-minute minimum, so a tape saved in Demo
+  mode can still be edited after Demo mode is turned off.
+- `validate_tape(tape, demo_mode, unchanged_ids=frozenset()) -> list[RuleViolation]`
 
 ### `domain/strength.py`
 ```python
@@ -120,9 +124,11 @@ def review(mem: TrackMemory, score: float, now: datetime) -> TrackMemory
 def apply_penalty(s: float, kind: PenaltyKind) -> float        # clamp to [S_MIN, S_MAX]
 def is_due(base: int, s: float, elapsed_days: float) -> bool
 def next_review_at(last_reviewed_at, base: int, s: float) -> datetime
-def tape_strength(strengths: list[int]) -> int | None          # mean, round half up
-def tape_condition(strengths: list[int]) -> Condition          # Mint when empty
 def is_ghost(strengths: list[int]) -> bool                     # non-empty and all 0
+def tape_strength(strengths: list[int]) -> int | None
+    # None when empty. Mean, rounded half up. If not a ghost, at least 1.
+def tape_condition(strengths: list[int]) -> Condition
+    # Mint when empty; Dead only when is_ghost; otherwise condition(tape_strength) (min Haunted)
 ```
 
 **Stability factor** (monotonic non-decreasing in score, jump at 0.6):
@@ -203,7 +209,7 @@ ghost}`, all computed at virtual now.
 | DELETE | `/api/tapes/{id}` | Delete tape, sessions and recalls |
 | POST | `/api/tapes/{id}/sessions` | Start a session |
 | POST | `/api/sessions/{id}/events` | `{client_event_id, type, item_id}` → `{penalty: [...]}`; idempotent on `client_event_id` |
-| POST | `/api/sessions/{id}/stop` | End session; applies the abandon rule; returns summary and penalty |
+| POST | `/api/sessions/{id}/stop` | End session; applies the abandon rule once and saves `abandoned` and `stop_penalty`; returns summary and penalty. Calling it again on an ended session returns the saved summary with no new penalty. This is the only way a session is stopped, so there is no `stop` event type |
 | POST | `/api/tracks/{id}/recalls` | `{client_event_id, text, source}` → `{score, matched, missed, memory}`; idempotent; text is not stored |
 | GET | `/api/settings` | `{demo_mode, time_warp_allowed, time_warp_enabled, time_scale, real_now, virtual_now}` |
 | PUT | `/api/settings` | `{demo_mode?, time_warp?}`; 403 if `time_warp` is true and `ALLOW_TIME_WARP` is not true |
@@ -235,6 +241,13 @@ Countdown = `itemEndsAt - Date.now()`, recalculated with `requestAnimationFrame`
 persisted to `localStorage` so a reload resumes correctly. It always uses real time. When a
 track completes it exposes `recPromptTrackId` until the next track starts.
 
+### `useVirtualClock` hook
+Loads `GET /api/settings` on mount and after each settings change, stores the server's
+`real_now`, `virtual_now` and `time_scale`, and computes the offset from the local clock. It
+returns `virtualNow()` using `domain/clock.ts`, and re-renders on a slow tick (about once a
+second, faster while time warp is on) so strengths and "due" labels stay current. It is used
+by `TapeShelf`, `JCard` and `RecallPanel`, and never by the focus timer.
+
 ### `useRecall` hook
 State machine: `idle → requesting_mic → recording → review → submitting → result | error`.
 - `requesting_mic`: start only after the user presses REC. Fall back to typing if denied.
@@ -260,7 +273,9 @@ State machine: `idle → requesting_mic → recording → review → submitting 
   min(1 × 2^attempt, 30)` seconds, `ack`, `predictStrength`.
 
 ### Audio (`src/audio/`)
-- `engine.ts`: one `AudioContext` created on first PLAY or REC press. Sound beds: brown noise
+- `engine.ts`: one `AudioContext` created on first PLAY or REC press. It also plays the
+  completion chime: a simple two-tone oscillator beep (about 0.4 s) in phase 1, which the
+  full audio engine can improve later. Sound beds: brown noise
   (filtered white noise buffer), rain (noise + random droplet envelopes), lo-fi loop (simple
   oscillators + low-pass + vinyl crackle). Master volume 0–1 (default 0.5); mute forces gain
   0; interlude fade uses a linear ramp of 2 s out and 2 s in; sound-bed gain never exceeds
@@ -337,11 +352,14 @@ flicker; Haunted = vignette, shadow silhouettes in the cassette window. All effe
     raise it; for the same state, a higher score never gives a lower stability.
   - `is_due` matches `next_review_at` (due exactly at and after it); a score ≥ 0.6 gives base
     100 and never lowers strength.
-  - `condition` is monotonic; `tape_strength` lies between the min and max track strength.
+  - `condition` is monotonic; `tape_strength` lies between the min and max track strength and
+    is at least 1 unless every recorded track is 0; `tape_condition` is Dead exactly when
+    `is_ghost`.
+  - Stopping an ended session returns the same summary and applies no second penalty.
   - `recall.score`: in [0, 1], equals matched/total, case-insensitive, never lowers when text
     is appended, 0 for empty text, 1 when all terms are present.
   - `validate_side` and `validate_tape`: capacity, adjacency, key term rules, Demo mode
-    minimum.
+    minimum, and unchanged short tracks staying valid after Demo mode is turned off.
   - `virtual_now`: never decreases; equals real time at scale 1; `set_scale` keeps virtual
     time continuous.
   - `sample_tape`: valid, deterministic, one track in each of Mint, Worn (due), Warped,
