@@ -159,8 +159,11 @@ def normalize(text: str) -> str          # lowercase, punctuation to spaces, col
 def score(key_terms: Sequence[str], text: str) -> RecallScore  # score, matched, missed
 ```
 A term is found when its normalised form appears in the normalised text bounded by word
-edges (so "cell" does not match "excellent", and a phrase must appear whole). Each term counts
-once. Score = matched / total.
+edges (so "cell" does not match "excellent", and a phrase must appear whole). The last word of
+the term may also be followed by a simple plural suffix "s" or "es" ("cell" matches "cells",
+"process" matches "processes", "cell wall" matches "cell walls"). The suffix is only accepted
+at a word edge, so "cell" does not match "cellular". Each term counts once. Score = matched /
+total.
 
 ### `domain/clock.py`
 ```python
@@ -355,7 +358,9 @@ flicker; Haunted = vignette, shadow silhouettes in the cassette window. All effe
     `is_ghost`.
   - Stopping an ended session returns the same summary and applies no second penalty.
   - `recall.score`: in [0, 1], equals matched/total, case-insensitive, never lowers when text
-    is appended, 0 for empty text, 1 when all terms are present.
+    is appended, 0 for empty text, 1 when all terms are present. Appending "s" to a
+    single-word term in the text still matches, "cells" matches "cell", and "cellular" and
+    "excellent" do not.
   - `validate_side` and `validate_tape`: capacity, adjacency, key term rules, Demo mode
     minimum, and unchanged short tracks staying valid after Demo mode is turned off.
   - `virtual_now`: never decreases; equals real time at scale 1; `set_scale` keeps virtual
