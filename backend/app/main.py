@@ -1,8 +1,11 @@
 import os
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app import db
 from app.api import health
 
 DEFAULT_CORS_ORIGIN = "http://localhost:5173"
@@ -14,8 +17,14 @@ def get_cors_origins() -> list[str]:
     return origins or [DEFAULT_CORS_ORIGIN]
 
 
+@asynccontextmanager
+async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
+    db.create_db_and_tables()
+    yield
+
+
 def create_app() -> FastAPI:
-    app = FastAPI(title="Cursed Cassette API")
+    app = FastAPI(title="Cursed Cassette API", lifespan=lifespan)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=get_cors_origins(),
