@@ -109,6 +109,18 @@
         "timestamp": 1795504081593
       }
     ],
+    "4.1 Tape API": [
+      {
+        "executionId": "61657db4-ad68-4f13-be27-9b9658b24b10",
+        "chatSessionId": "sess_eeffcdcf-8df9-4c84-8edb-c89dffd02970",
+        "timestamp": 1795519738037
+      },
+      {
+        "executionId": "61657db4-ad68-4f13-be27-9b9658b24b10",
+        "chatSessionId": "sess_eeffcdcf-8df9-4c84-8edb-c89dffd02970",
+        "timestamp": 1795519906069
+      }
+    ],
     "7.4 Theme tokens, fonts and base layout (shelf / recorder / player routes)": [
       {
         "executionId": "674e13a2-464b-4474-b26f-d7fc09eb1630",
