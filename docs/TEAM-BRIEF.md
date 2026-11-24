@@ -115,10 +115,22 @@ If this brief and the spec ever disagree, **the spec wins**.
   found and fixed before any code)
 - ✅ Repo, MIT license, team workflow guide
 - ✅ Team lead's 4,000 hackathon credits have arrived
-- 🔄 Teammate A: MCP setup + browser API research (branch open)
-- 🔄 Teammate B: design-system steering file (branch open)
-- 🔄 Team lead: spec-check agent hook, then **task 1 (scaffold)**
-- ❌ No app code yet. **Build tasks start only after task 1 is merged to `main`.**
+- ✅ Spec coverage agent hook working (`.kiro/hooks/spec-coverage-check.json`)
+- ✅ **Task 1 (scaffold) merged to `main`. The build has started.** Backend and frontend
+  tests pass.
+- ✅ Teammate A: fetch MCP server + browser API research (PR #1, merged)
+- 🔄 Teammate B: design-system steering (PR to open after moving sound notes to
+  `docs/design/sounds.md`)
+- ▶️ Next: Team lead → 2.1; Teammate A → 7.1 (API client, needed by B's UI); Teammate B →
+  7.4 (theme and layout). See section 6.
+
+**Setup after pulling `main`:** in the Kiro terminal run `cd backend` then `uv sync`, and
+`cd frontend` then `npm.cmd install`. If PowerShell blocks `npm`, use `npm.cmd`.
+
+**Merging during the build:** every "Start task" ticks a box in `tasks.md` and updates
+`tasks.meta.json`, so branches touch the same files. Before opening a PR, use **Branch →
+Update from main** in GitHub Desktop. In `tasks.md` conflicts, keep both ticked boxes. Ask
+the team lead about `tasks.meta.json` conflicts.
 
 ---
 
