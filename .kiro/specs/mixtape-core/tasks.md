@@ -64,7 +64,7 @@ scoring, stability and strength, and applies each event once (idempotent on
   - _Requirements: 1.2, 1.3, 1.4_
 
 - [ ] 4. Tape and settings APIs
-- [ ] 4.1 Tape API
+- [x] 4.1 Tape API
   - Implement `GET/POST /api/tapes`, `GET/PUT/DELETE /api/tapes/{id}` with 422 rule
     violations in `{rule, side, message}` format. Responses include each track's `memory`
     and the tape's strength, condition, due count, next review and ghost flag at virtual now.
@@ -86,10 +86,11 @@ scoring, stability and strength, and applies each event once (idempotent on
   - `POST /api/sessions/{id}/stop` is the only way to stop a session. It applies the abandon
     rule once, saves `abandoned` and `stop_penalty` on the session, and returns the summary.
     A second call returns the saved summary with no new penalty.
+  - `GET /api/tapes/{id}` also returns liner-note stats computed from sessions: number of sessions, total focus minutes (sum of completed track durations), tracks completed and tracks skipped.
   - Tests: duplicate event IDs applied once; property test over duplicate delivery patterns
     giving the same final state; penalties only affect tracks completed in the session; a
     second stop applies no second penalty.
-  - _Requirements: 3.1, 3.8, 3.9, 4.1–4.6, 4.9, 4.10, 13.3_
+  - _Requirements: 3.1, 3.8, 3.9, 4.1–4.6, 4.9, 4.10, 13.3, 11.4, 11.5_
 
 - [ ] 6. Recall API
   - `POST /api/tracks/{id}/recalls` `{client_event_id, text, source}`: scores, updates the

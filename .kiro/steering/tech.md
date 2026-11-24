@@ -50,3 +50,4 @@ inclusion: always
 ## Commands
 - Backend: `cd backend && uv run uvicorn app.main:app --reload` and `uv run pytest`
 - Frontend: `cd frontend && npm run dev` and `npm test`
+- In Kiro's terminal on Windows, run backend tests with `.\.venv\Scripts\python.exe -m pytest -q` from `backend/` (`uv run pytest` gives garbled output there).
