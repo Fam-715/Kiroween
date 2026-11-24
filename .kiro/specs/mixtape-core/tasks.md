@@ -23,7 +23,7 @@ scoring, stability and strength, and applies each event once (idempotent on
     frontend dev origin.
   - _Requirements: none (setup)_
 
-- [ ] 2. Backend domain logic (pure functions)
+- [x] 2. Backend domain logic (pure functions)
 - [x] 2.1 `domain/schedule.py` (side capacity, minimum track minutes by Demo mode, side and
   tape validation including 3–5 unique key terms)
   - Property tests: random valid tapes pass; adding any item over capacity fails; remaining
@@ -48,7 +48,7 @@ scoring, stability and strength, and applies each event once (idempotent on
     match "excellent" or "cellular"; appending "s" to a single-word term in the text still
     matches (plural rule: "cell" matches "cells", "process" matches "processes").
   - _Requirements: 5.11_
-- [ ] 2.4 `domain/clock.py` (`virtual_now`, `set_scale`; scale 1 until task 14)
+- [x] 2.4 `domain/clock.py` (`virtual_now`, `set_scale`; scale 1 until task 14)
   - Property tests: virtual time never decreases; scale 1 equals real time; scale 1440 is 1440
     times real elapsed; `set_scale` keeps virtual time continuous.
   - _Requirements: 12.7, 12.8_
