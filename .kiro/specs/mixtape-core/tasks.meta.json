@@ -108,6 +108,18 @@
         "chatSessionId": "sess_7a7c0ee1-4e01-44ad-8e76-3c69033e71b3",
         "timestamp": 1795504081593
       }
+    ],
+    "4.1 Tape API": [
+      {
+        "executionId": "61657db4-ad68-4f13-be27-9b9658b24b10",
+        "chatSessionId": "sess_eeffcdcf-8df9-4c84-8edb-c89dffd02970",
+        "timestamp": 1795519738037
+      },
+      {
+        "executionId": "61657db4-ad68-4f13-be27-9b9658b24b10",
+        "chatSessionId": "sess_eeffcdcf-8df9-4c84-8edb-c89dffd02970",
+        "timestamp": 1795519906069
+      }
     ]
   }
 }
