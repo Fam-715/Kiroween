@@ -219,7 +219,7 @@ Tasks are in `.kiro/specs/mixtape-core/tasks.md`. Run each task **from Kiro's ta
 | Order | Team lead (backend) | Teammate A (frontend logic + audio) | Teammate B (UI + visuals) |
 |---|---|---|---|
 | **First, alone** | **1** Scaffold → merge to `main` | wait, then pull | wait, then pull |
-| Phase 1 | **2.1–2.4** domain, **3** persistence, **4** tape API, **4.1** settings API (Demo mode), **5** session API, **6** recall API | **7.1** API client, **7.2** strength/clock + `useVirtualClock`, **7.3** effects, **9.1** player state machine, **9.3** events + chime | **7.4** theme/layout, **8** Recorder UI, **8.1** Demo mode toggle, **9.2** CassettePlayer, **10** RecallPanel (typed) |
+| Phase 1 | **2.1–2.4** domain, **3** persistence, **4.1** tape API, **4.2** settings API (Demo mode), **5** session API, **6** recall API | **7.1** API client, **7.2** strength/clock + `useVirtualClock`, **7.3** effects, **9.1** player state machine, **9.3** events + chime | **7.4** theme/layout, **8.1** Recorder UI, **8.2** Demo mode toggle, **9.2** CassettePlayer, **10** RecallPanel (typed) |
 | Phase 2 | **14.1** time warp, **14.2** sample tape | **11** voice recall, **12** decayed playback, **16** focus audio | **13** break-skip feedback, **14.3** Settings UI, **15** shelf + J-card, **17** haunted effects |
 | Phase 3 | **18** deploy, video, write-up | smoke test speech/mic on phones and browsers | screenshots, Devpost gallery, polish |
 

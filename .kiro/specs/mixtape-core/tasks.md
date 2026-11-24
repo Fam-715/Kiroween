@@ -53,17 +53,18 @@ scoring, stability and strength, and applies each event once (idempotent on
     times real elapsed; `set_scale` keeps virtual time continuous.
   - _Requirements: 12.7, 12.8_
 
-- [ ] 3. Persistence and listener scoping
-- [ ] 3.1 SQLModel tables (Listener, Tape, TapeItem with memory fields, Recall, Session,
+- [x] 3. Persistence and listener scoping
+- [x] 3.1 SQLModel tables (Listener, Tape, TapeItem with memory fields, Recall, Session,
   SessionEvent) and DB session dependency
   - _Requirements: 2.6, 11.5, 13.3_
-- [ ] 3.2 `X-Listener-Id` dependency that validates UUID v4, returns 400 otherwise, and
+- [x] 3.2 `X-Listener-Id` dependency that validates UUID v4, returns 400 otherwise, and
   creates the Listener row with defaults on first use
   - Tests: missing header, malformed header (property test over non-UUID strings), other
     listener's tape returns 404.
   - _Requirements: 1.2, 1.3, 1.4_
 
-- [ ] 4. Tape API
+- [ ] 4. Tape and settings APIs
+- [ ] 4.1 Tape API
   - Implement `GET/POST /api/tapes`, `GET/PUT/DELETE /api/tapes/{id}` with 422 rule
     violations in `{rule, side, message}` format. Responses include each track's `memory`
     and the tape's strength, condition, due count, next review and ghost flag at virtual now.
@@ -73,7 +74,7 @@ scoring, stability and strength, and applies each event once (idempotent on
   - Tests: PUT during an active session returns 409; editing a tape saved in Demo mode after
     Demo mode is off keeps unchanged short tracks valid.
   - _Requirements: 2.1–2.8, 6.2–6.4, 6.10–6.12, 11.1, 11.6, 12.3_
-- [ ] 4.1 Settings API (Demo mode)
+- [ ] 4.2 Settings API (Demo mode)
   - `GET/PUT /api/settings` with the per-listener `demo_mode` setting. The tape API reads it
     to set the track minimum. The time warp fields are added in task 14.1.
   - _Requirements: 12.1, 12.2_
@@ -100,7 +101,7 @@ scoring, stability and strength, and applies each event once (idempotent on
   - _Requirements: 5.10, 5.11, 6.5–6.8, 8.1, 8.4–8.7, 13.3_
 
 - [ ] 7. Frontend foundation
-- [ ] 7.1 `useListenerId` hook and typed API client that sends `X-Listener-Id`
+- [x] 7.1 `useListenerId` hook and typed API client that sends `X-Listener-Id`
   - _Requirements: 1.1, 1.2_
 - [ ] 7.2 `domain/strength.ts`, `domain/clock.ts` (mirror the backend) and the
   `useVirtualClock` hook (loads `/api/settings`, tracks the server offset, returns
@@ -117,11 +118,12 @@ scoring, stability and strength, and applies each event once (idempotent on
 - [x] 7.4 Theme tokens, fonts and base layout (shelf / recorder / player routes)
   - _Requirements: 9.6_
 
-- [ ] 8. Recorder UI
+- [ ] 8. Recorder UI and Demo mode toggle
+- [ ] 8.1 Recorder UI
   - Side columns, add/reorder/remove items, key terms chips (3–5), live tape-remaining bars,
     inline rule errors, and the Demo mode minimum (1 minute) when enabled.
   - _Requirements: 2.1–2.8_
-- [ ] 8.1 `Settings` panel with the "Demo mode" toggle (labelled as text while on)
+- [ ] 8.2 Demo mode toggle: `Settings` panel with the "Demo mode" toggle (labelled as text while on)
   - The time warp toggle and "Load sample tape" button are added in task 14.3.
   - _Requirements: 12.1, 12.2, 12.3_
 
@@ -176,7 +178,7 @@ and the track's strength, then skip a break and watch stability drop in the resp
   - Component test: the toast and affected tracks show after a skipped interlude.
   - _Requirements: 4.7, 4.8_
 - [ ] 14. Demo settings
-- [ ] 14.1 Backend: extend `GET/PUT /api/settings` (from task 4.1) with time warp (scale 1 or
+- [ ] 14.1 Backend: extend `GET/PUT /api/settings` (from task 4.2) with time warp (scale 1 or
   1440 with continuous virtual time, `time_warp_allowed` from `ALLOW_TIME_WARP`, 403 when it
   is not true)
   - Tests: 403 when not allowed; virtual time continuous across toggles.
@@ -186,7 +188,7 @@ and the track's strength, then skip a break and watch stability drop in the resp
     (due), one Warped and one Haunted track at creation.
   - _Requirements: 12.9, 12.10_
 - [ ] 14.3 Frontend `Settings`: add the "Demo time warp" toggle (hidden when not allowed, with
-  a "TIME WARP ON" label) and the "Load sample tape" button to the panel from task 8.1
+  a "TIME WARP ON" label) and the "Load sample tape" button to the panel from task 8.2
   - _Requirements: 12.5, 12.8, 12.9_
 - [ ] 15. Haunted shelf, J-card and restore
   - Shelf spines with condition, "N due" labels and haunted look, ghost rendering for

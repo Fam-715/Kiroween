@@ -78,6 +78,37 @@
         "timestamp": 1795503379069
       }
     ],
+    "3.1 SQLModel tables (Listener, Tape, TapeItem with memory fields, Recall, Session,": [
+      {
+        "executionId": "90f8bf96-1aa8-4fab-8d9c-90ca5d156997",
+        "chatSessionId": "sess_57d61d8f-8445-49c2-9815-a43c50e66c30",
+        "timestamp": 1795503700261
+      },
+      {
+        "executionId": "90f8bf96-1aa8-4fab-8d9c-90ca5d156997",
+        "chatSessionId": "sess_57d61d8f-8445-49c2-9815-a43c50e66c30",
+        "timestamp": 1795503902611
+      }
+    ],
+    "3.2 `X-Listener-Id` dependency that validates UUID v4, returns 400 otherwise, and": [
+      {
+        "executionId": "20c675d0-e674-44a4-af46-367e925d1687",
+        "chatSessionId": "sess_7a7c0ee1-4e01-44ad-8e76-3c69033e71b3",
+        "timestamp": 1795503933750
+      },
+      {
+        "executionId": "20c675d0-e674-44a4-af46-367e925d1687",
+        "chatSessionId": "sess_7a7c0ee1-4e01-44ad-8e76-3c69033e71b3",
+        "timestamp": 1795504081300
+      }
+    ],
+    "3. Persistence and listener scoping": [
+      {
+        "executionId": "20c675d0-e674-44a4-af46-367e925d1687",
+        "chatSessionId": "sess_7a7c0ee1-4e01-44ad-8e76-3c69033e71b3",
+        "timestamp": 1795504081593
+      }
+    ],
     "7.4 Theme tokens, fonts and base layout (shelf / recorder / player routes)": [
       {
         "executionId": "674e13a2-464b-4474-b26f-d7fc09eb1630",
