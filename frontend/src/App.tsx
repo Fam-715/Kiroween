@@ -1,8 +1,16 @@
+import { BrowserRouter } from "react-router-dom";
+import Layout from "./components/Layout";
+
+/**
+ * Base layout and routes (task 7.4):
+ *  /            → TapeShelf  (the haunted shelf)
+ *  /record      → Recorder   (create/edit a tape)
+ *  /play/:tapeId → CassettePlayer (focus session)
+ */
 export default function App() {
   return (
-    <main className="p-6">
-      <h1 className="text-2xl text-tape-accent">Cursed Cassette</h1>
-      <p>Study tapes that decay as you forget.</p>
-    </main>
+    <BrowserRouter>
+      <Layout />
+    </BrowserRouter>
   );
 }
