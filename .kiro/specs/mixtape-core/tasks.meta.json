@@ -120,6 +120,25 @@
         "chatSessionId": "sess_eeffcdcf-8df9-4c84-8edb-c89dffd02970",
         "timestamp": 1795519906069
       }
+    ],
+    "4.2 Settings API (Demo mode)": [
+      {
+        "executionId": "b9a4adf9-02ef-4cbb-8945-efdc85e4e7c3",
+        "chatSessionId": "sess_8e9f2e27-6dd9-4571-9dbf-abcd3c31aaed",
+        "timestamp": 1795520894408
+      },
+      {
+        "executionId": "b9a4adf9-02ef-4cbb-8945-efdc85e4e7c3",
+        "chatSessionId": "sess_8e9f2e27-6dd9-4571-9dbf-abcd3c31aaed",
+        "timestamp": 1795521073745
+      }
+    ],
+    "4. Tape and settings APIs": [
+      {
+        "executionId": "b9a4adf9-02ef-4cbb-8945-efdc85e4e7c3",
+        "chatSessionId": "sess_8e9f2e27-6dd9-4571-9dbf-abcd3c31aaed",
+        "timestamp": 1795521074133
+      }
     ]
   }
 }
