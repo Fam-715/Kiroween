@@ -199,7 +199,8 @@ I practise recalling it and the tape can tell how well I remember.
     and SHALL NOT store the text.
 11. The score SHALL equal the number of key terms found in the text divided by the number of
     key terms. A term is found when it appears in the text, ignoring case and punctuation,
-    as a whole word or phrase.
+    as a whole word or phrase, or when its last word is followed by a simple plural suffix
+    "s" or "es" (e.g. "cell" matches "cells").
 12. WHEN a recall is scored THEN the UI SHALL show the score as a percentage, with the
     matched and missed key terms.
 13. WHEN a user first uses speech recognition THEN the UI SHALL state that the browser may

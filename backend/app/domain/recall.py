@@ -24,6 +24,9 @@ def normalize(text: str) -> str:
 def score(key_terms: Sequence[str], text: str) -> RecallScore:
     """Fraction of key terms found in text as whole words or phrases.
 
+    The last word of a term may take a simple plural suffix ("s" or "es"), so
+    "cell" matches "cells" but not "cellular" or "excellent".
+
     Terms are deduplicated by normalised form (each counts once). Terms that
     normalise to nothing are ignored. Score is 0 with no terms or no text.
     """
@@ -36,7 +39,7 @@ def score(key_terms: Sequence[str], text: str) -> RecallScore:
         if not norm or norm in seen:
             continue
         seen.add(norm)
-        if f" {norm} " in haystack:
+        if re.search(rf" {re.escape(norm)}(?:e?s)? ", haystack):
             matched.append(term)
         else:
             missed.append(term)

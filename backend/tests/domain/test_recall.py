@@ -48,6 +48,23 @@ def test_cell_does_not_match_excellent():
     assert score(["cell"], "the Cell, divides").score == 1.0
 
 
+@given(word, st.sampled_from(["s", "es"]))
+def test_plural_of_single_word_term_still_matches(w, suffix):
+    assert score([w], f"we saw {w}{suffix} here").score == 1.0
+
+
+def test_simple_plurals_match():
+    assert score(["cell"], "many cells").score == 1.0
+    assert score(["process"], "two processes").score == 1.0
+    assert score(["cell wall"], "the cell walls").score == 1.0
+
+
+def test_cell_does_not_match_cellular_or_excellent():
+    assert score(["cell"], "cellular biology").score == 0.0
+    assert score(["cell"], "excellent").score == 0.0
+    assert score(["cell"], "excellents").score == 0.0
+
+
 def test_phrase_must_appear_whole():
     assert score(["cell wall"], "cell and wall").score == 0.0
     assert score(["cell wall"], "the cell wall.").score == 1.0
