@@ -12,6 +12,18 @@
         "chatSessionId": "sess_6be5aa1d-df17-4d75-bd32-429cc93fecaa",
         "timestamp": 1795487975903
       }
+    ],
+    "2.1 `domain/schedule.py` (side capacity, minimum track minutes by Demo mode, side and": [
+      {
+        "executionId": "75cc4c78-1804-4c9c-bf42-dc0bced9bcf9",
+        "chatSessionId": "sess_1399aa5b-691f-404f-a595-18802230f784",
+        "timestamp": 1795490538297
+      },
+      {
+        "executionId": "75cc4c78-1804-4c9c-bf42-dc0bced9bcf9",
+        "chatSessionId": "sess_1399aa5b-691f-404f-a595-18802230f784",
+        "timestamp": 1795490677665
+      }
     ]
   }
 }
