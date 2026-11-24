@@ -114,7 +114,7 @@ scoring, stability and strength, and applies each event once (idempotent on
     motion zeroes visual wobble and flicker; fade gain is monotonic and bounded; gain is 0
     when muted and never above volume; Dead has no voice gain.
   - _Requirements: 7.2–7.4, 7.8, 9.1–9.5, 10.4, 10.5_
-- [ ] 7.4 Theme tokens, fonts and base layout (shelf / recorder / player routes)
+- [x] 7.4 Theme tokens, fonts and base layout (shelf / recorder / player routes)
   - _Requirements: 9.6_
 
 - [ ] 8. Recorder UI
