@@ -101,7 +101,7 @@ scoring, stability and strength, and applies each event once (idempotent on
   - _Requirements: 5.10, 5.11, 6.5–6.8, 8.1, 8.4–8.7, 13.3_
 
 - [ ] 7. Frontend foundation
-- [ ] 7.1 `useListenerId` hook and typed API client that sends `X-Listener-Id`
+- [x] 7.1 `useListenerId` hook and typed API client that sends `X-Listener-Id`
   - _Requirements: 1.1, 1.2_
 - [ ] 7.2 `domain/strength.ts`, `domain/clock.ts` (mirror the backend) and the
   `useVirtualClock` hook (loads `/api/settings`, tracks the server offset, returns
