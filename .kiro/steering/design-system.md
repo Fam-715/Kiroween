@@ -10,8 +10,7 @@ fileMatchPattern:
 ## 1. Visual mood
 An original retro-horror take on the 1980s portable cassette player: a machine found in an
 abandoned dorm. Dark, nostalgic, a little funny, never gory. All artwork is drawn from
-scratch (SVG/CSS). No brand names, no logos, no traced artwork, no "Walkman" or similar
-trademarks — the component is always "cassette player". The horror always reflects app
+scratch (SVG/CSS). No brand names, no logos, no traced artwork — the component is always "cassette player". The horror always reflects app
 state: a forgotten topic looks scarier, so the spooky design serves the function.
 
 ## 2. Colour palette (Tailwind tokens)
