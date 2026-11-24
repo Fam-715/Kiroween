@@ -24,7 +24,7 @@ scoring, stability and strength, and applies each event once (idempotent on
   - _Requirements: none (setup)_
 
 - [ ] 2. Backend domain logic (pure functions)
-- [ ] 2.1 `domain/schedule.py` (side capacity, minimum track minutes by Demo mode, side and
+- [x] 2.1 `domain/schedule.py` (side capacity, minimum track minutes by Demo mode, side and
   tape validation including 3–5 unique key terms)
   - Property tests: random valid tapes pass; adding any item over capacity fails; remaining
     minutes equals capacity minus total; cross-side track pairs are not adjacent; 2 or 6
@@ -128,7 +128,7 @@ scoring, stability and strength, and applies each event once (idempotent on
 - [ ] 9.1 `useTapePlayer` state machine with timestamp-based countdown and reload resume
   - Property tests: countdown never negative or above the item duration; every item ends in
     exactly one state for any button sequence.
-  - _Requirements: 3.1–3.9, 3.11, 3.12_
+  - _Requirements: 3.1–3.9, 3.11, 3.12, 12.11_
 - [ ] 9.2 `CassettePlayer` component: SVG cassette, reels, LCD, buttons (including REC),
   flip animation, tape map of tracks, keyboard controls, aria labels
   - _Requirements: 3.7, 3.10_

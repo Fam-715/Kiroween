@@ -99,14 +99,12 @@ time. Session timestamps use real time.
 ## Domain modules (backend, pure, no I/O)
 
 ### `domain/schedule.py`
-- `side_capacity(length) -> int`
+- `side_capacity(length) -> int` (C60=30, C90=45, C120=60)
 - `min_track_minutes(demo_mode) -> int` (10, or 1 in Demo mode)
-- `validate_side(items, demo_mode, unchanged_ids=frozenset()) -> list[RuleViolation]`:
-  total ≤ capacity, no adjacent tracks, durations in range, track names present, 3–5 unique
-  (ignoring case) key terms of 1–40 characters. A track in `unchanged_ids` (same id and same
-  minutes as the saved tape) is exempt from the 10-minute minimum, so a tape saved in Demo
-  mode can still be edited after Demo mode is turned off.
-- `validate_tape(tape, demo_mode, unchanged_ids=frozenset()) -> list[RuleViolation]`
+- `remaining_minutes(items, length) -> int`: side capacity minus the sum of item durations (negative when over capacity)
+- `validate_side(items, demo_mode, unchanged_ids=frozenset(), *, length, side=None) -> list[RuleViolation]`: `length` is the tape length, needed for the capacity rule. `side` ("A" or "B") only labels the violations. Rules: total ≤ capacity, no adjacent tracks, track durations 10–50 (1–50 in Demo mode), interlude durations 3–15, track names 1–40 characters, 3–5 unique (ignoring case) key terms of 1–40 characters. A track in `unchanged_ids` (same id and same minutes as the saved tape) is exempt from the 10-minute minimum, so a tape saved in Demo mode can still be edited after Demo mode is turned off. It must still be at most 50 minutes.
+- `validate_tape(tape, demo_mode, unchanged_ids=frozenset()) -> list[RuleViolation]`: checks title 1–60 characters and length C60/C90/C120, then calls `validate_side` for each side with `length=tape.length` and `side="A"`/`"B"`. Sides are validated independently, so the last track on Side A and the first on Side B are not adjacent.
+- `RuleViolation(rule, side, message)`, `Item(kind, minutes, id, name, key_terms)` and `Tape(title, length, side_a, side_b)` are frozen dataclasses.
 
 ### `domain/strength.py`
 ```python
