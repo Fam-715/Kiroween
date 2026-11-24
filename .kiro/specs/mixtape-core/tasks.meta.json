@@ -36,6 +36,18 @@
         "chatSessionId": "sess_b7a50d0a-e3a2-475d-88ed-b034682562a0",
         "timestamp": 1795492540998
       }
+    ],
+    "2.3 `domain/recall.py` (`normalize`, `score` with whole-word/phrase matching)": [
+      {
+        "executionId": "c4717a41-390b-472a-be66-479b736e6a35",
+        "chatSessionId": "sess_3533e6c8-47f2-4214-a31c-94bf76a28823",
+        "timestamp": 1795494330711
+      },
+      {
+        "executionId": "c4717a41-390b-472a-be66-479b736e6a35",
+        "chatSessionId": "sess_3533e6c8-47f2-4214-a31c-94bf76a28823",
+        "timestamp": 1795494444020
+      }
     ]
   }
 }

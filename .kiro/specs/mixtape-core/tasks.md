@@ -42,7 +42,7 @@ scoring, stability and strength, and applies each event once (idempotent on
     track strength and at least 1 unless every recorded track is 0; the tape condition is
     Dead exactly when the tape is a ghost.
   - _Requirements: 4.1–4.5, 4.9, 6.1–6.11, 6.13, 8.4, 8.5_
-- [ ] 2.3 `domain/recall.py` (`normalize`, `score` with whole-word/phrase matching)
+- [x] 2.3 `domain/recall.py` (`normalize`, `score` with whole-word/phrase matching)
   - Property tests: score in [0, 1] and equals matched/total; case-insensitive; appending
     text never lowers it; empty text scores 0; all terms present scores 1; "cell" does not
     match "excellent".
