@@ -63,7 +63,7 @@ scoring, stability and strength, and applies each event once (idempotent on
     listener's tape returns 404.
   - _Requirements: 1.2, 1.3, 1.4_
 
-- [ ] 4. Tape and settings APIs
+- [x] 4. Tape and settings APIs
 - [x] 4.1 Tape API
   - Implement `GET/POST /api/tapes`, `GET/PUT/DELETE /api/tapes/{id}` with 422 rule
     violations in `{rule, side, message}` format. Responses include each track's `memory`
@@ -74,7 +74,7 @@ scoring, stability and strength, and applies each event once (idempotent on
   - Tests: PUT during an active session returns 409; editing a tape saved in Demo mode after
     Demo mode is off keeps unchanged short tracks valid.
   - _Requirements: 2.1–2.8, 6.2–6.4, 6.10–6.12, 11.1, 11.6, 12.3_
-- [ ] 4.2 Settings API (Demo mode)
+- [x] 4.2 Settings API (Demo mode)
   - `GET/PUT /api/settings` with the per-listener `demo_mode` setting. The tape API reads it
     to set the track minimum. The time warp fields are added in task 14.1.
   - _Requirements: 12.1, 12.2_

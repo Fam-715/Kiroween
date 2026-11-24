@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app import db
-from app.api import health, tapes
+from app.api import health, settings, tapes
 
 DEFAULT_CORS_ORIGIN = "http://localhost:5173"
 
@@ -33,6 +33,7 @@ def create_app() -> FastAPI:
     )
     app.include_router(health.router, prefix="/api")
     app.include_router(tapes.router, prefix="/api")
+    app.include_router(settings.router, prefix="/api")
     return app
 
 
