@@ -82,3 +82,19 @@ class TapeOut(BaseModel):
     due_count: int
     next_review_at: datetime | None
     ghost: bool
+
+
+# --- Settings ----------------------------------------------------------------------
+class SettingsIn(BaseModel):
+    """Body of PUT /api/settings."""
+
+    demo_mode: bool
+
+
+class SettingsOut(BaseModel):
+    demo_mode: bool
+    time_warp_allowed: bool
+    time_warp_enabled: bool
+    time_scale: int
+    real_now: datetime
+    virtual_now: datetime
