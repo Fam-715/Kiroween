@@ -32,7 +32,7 @@ scoring, stability and strength, and applies each event once (idempotent on
     mode; unchanged short tracks stay valid after Demo mode is turned off, new or changed
     ones do not.
   - _Requirements: 2.2, 2.3, 2.4, 2.5, 2.7, 12.2, 12.3_
-- [ ] 2.2 `domain/strength.py` (named constants, `decay_ratio`, `strength_at`, `condition`,
+- [x] 2.2 `domain/strength.py` (named constants, `decay_ratio`, `strength_at`, `condition`,
   `stability_factor`, `review`, `apply_penalty`, `is_due`, `next_review_at`,
   `tape_strength`, `tape_condition`, `is_ghost`)
   - Property tests: strength is an integer in 0–100 and non-increasing over time; stability
