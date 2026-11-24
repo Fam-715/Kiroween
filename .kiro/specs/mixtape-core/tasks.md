@@ -14,7 +14,7 @@ scoring, stability and strength, and applies each event once (idempotent on
 
 ### Phase 1: Playable demo (target: days 1–4)
 
-- [ ] 1. Scaffold the project
+- [x] 1. Scaffold the project
   - Create `backend/` with FastAPI, SQLModel, pytest, Hypothesis (managed with uv) and a
     health check endpoint `GET /api/health`.
   - Create `frontend/` with Vite + React + TypeScript, Tailwind, Framer Motion, Vitest,
