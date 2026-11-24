@@ -416,3 +416,4 @@ error.
 ### Other Optional items
 Ghost whispers, the strength history sparkline on the J-card, and the full offline queue are
 described above and in the tasks.
+

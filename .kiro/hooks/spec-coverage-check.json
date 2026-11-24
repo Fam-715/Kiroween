@@ -4,12 +4,13 @@
     {
       "name": "Spec requirements/tasks coverage check",
       "trigger": "PostFileSave",
-      "description": "On saving a Markdown file in .kiro/specs/, report MVP requirements without tasks and tasks citing missing requirements. Read-only.",
-      "matcher": "\\.kiro[\\\\/]specs[\\\\/].*\\.md$",
       "action": {
         "type": "agent",
         "prompt": "A Markdown file under .kiro/specs/ was just saved. Do a read-only traceability check on that spec's folder (the directory containing the saved file).\n\n1. Read requirements.md and tasks.md in that folder. If either is missing, say which one and stop.\n2. List every requirement by its number. A requirement is MVP unless it is explicitly marked Optional, or is listed under an \"Optional\" section. The project's product rules define the MVP core loop (record a tape, play to focus, REC to recall, decay, decayed playback, restore, haunted shelf, demo helpers); treat requirements covering those as MVP.\n3. Read each task's requirement references (for example \"_Requirements: 1.2, 3.1_\"). Include sub-tasks.\n4. Report two gaps:\n   a. MVP requirements (or acceptance criteria, if tasks cite them at that level) that no task references.\n   b. Tasks that reference a requirement number that does not exist in requirements.md. Also list tasks with no requirement reference at all, unless they are pure checkpoint tasks.\n5. Reply in chat with a short list for each gap, giving the requirement or task id and a one-line title. If there are no gaps, say so in one sentence.\n\nStrict rules: do NOT edit, create, or delete any file. Do not fix the gaps. Only report them and, if useful, suggest in one line what task or reference would close each gap."
-      }
+      },
+      "description": "On saving a Markdown file in .kiro/specs/, report MVP requirements without tasks and tasks citing missing requirements. Read-only.",
+      "matcher": "\\.kiro[\\\\/]specs[\\\\/].*[\\\\/](requirements|design)\\.md$",
+      "enabled": true
     }
   ]
 }
