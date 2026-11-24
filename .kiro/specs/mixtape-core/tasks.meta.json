@@ -59,6 +59,25 @@
         "timestamp": 1795495059048
       }
     ],
+    "2.4 `domain/clock.py` (`virtual_now`, `set_scale`; scale 1 until task 14)": [
+      {
+        "executionId": "9160cf8c-f04a-4a7d-af20-137911ba41fc",
+        "chatSessionId": "sess_39a9aff4-d4e9-4fa4-a6ea-15baddcf26bd",
+        "timestamp": 1795503265049
+      },
+      {
+        "executionId": "9160cf8c-f04a-4a7d-af20-137911ba41fc",
+        "chatSessionId": "sess_39a9aff4-d4e9-4fa4-a6ea-15baddcf26bd",
+        "timestamp": 1795503378971
+      }
+    ],
+    "2. Backend domain logic (pure functions)": [
+      {
+        "executionId": "9160cf8c-f04a-4a7d-af20-137911ba41fc",
+        "chatSessionId": "sess_39a9aff4-d4e9-4fa4-a6ea-15baddcf26bd",
+        "timestamp": 1795503379069
+      }
+    ],
     "7.4 Theme tokens, fonts and base layout (shelf / recorder / player routes)": [
       {
         "executionId": "674e13a2-464b-4474-b26f-d7fc09eb1630",
