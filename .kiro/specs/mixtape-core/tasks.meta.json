@@ -151,6 +151,18 @@
         "chatSessionId": "sess_a3bf2507-69fb-45a5-b4f3-704612d93450",
         "timestamp": 1795504543019
       }
+    ],
+    "8.1 Recorder UI": [
+      {
+        "executionId": "b0063e61-2337-4621-b40c-30e57aee15ef",
+        "chatSessionId": "sess_e4fed5ec-59a8-4e16-ab17-35008c727c7a",
+        "timestamp": 1795531625249
+      },
+      {
+        "executionId": "b0063e61-2337-4621-b40c-30e57aee15ef",
+        "chatSessionId": "sess_e4fed5ec-59a8-4e16-ab17-35008c727c7a",
+        "timestamp": 1795533631559
+      }
     ]
   }
 }
