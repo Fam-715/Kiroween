@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import Literal
 from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 ConditionName = Literal["Mint", "Worn", "Warped", "Haunted", "Dead"]
 
@@ -155,7 +155,14 @@ class RecallOut(BaseModel):
 class SettingsIn(BaseModel):
     """Body of PUT /api/settings."""
 
-    demo_mode: bool
+    demo_mode: bool | None = None
+    time_warp: bool | None = None
+
+    @model_validator(mode="after")
+    def _at_least_one(self) -> "SettingsIn":
+        if self.demo_mode is None and self.time_warp is None:
+            raise ValueError("provide demo_mode and/or time_warp")
+        return self
 
 
 class SettingsOut(BaseModel):

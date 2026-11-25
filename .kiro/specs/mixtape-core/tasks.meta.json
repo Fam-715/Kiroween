@@ -187,6 +187,18 @@
         "chatSessionId": "sess_a5ee61a2-5bbf-4d42-b861-c1bc01279ef5",
         "timestamp": 1795592434408
       }
+    ],
+    "14.1 Backend: extend `GET/PUT /api/settings` (from task 4.2) with time warp (scale 1 or": [
+      {
+        "executionId": "94efeab3-e890-4aed-b574-fef680115359",
+        "chatSessionId": "sess_af0fc968-f2d3-42ea-91ad-08742f7e8dc0",
+        "timestamp": 1795597424515
+      },
+      {
+        "executionId": "94efeab3-e890-4aed-b574-fef680115359",
+        "chatSessionId": "sess_af0fc968-f2d3-42ea-91ad-08742f7e8dc0",
+        "timestamp": 1795597634820
+      }
     ]
   }
 }

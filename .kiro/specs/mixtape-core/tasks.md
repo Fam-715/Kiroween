@@ -179,7 +179,7 @@ and the track's strength, then skip a break and watch stability drop in the resp
   - Component test: the toast and affected tracks show after a skipped interlude.
   - _Requirements: 4.7, 4.8_
 - [ ] 14. Demo settings
-- [ ] 14.1 Backend: extend `GET/PUT /api/settings` (from task 4.2) with time warp (scale 1 or
+- [x] 14.1 Backend: extend `GET/PUT /api/settings` (from task 4.2) with time warp (scale 1 or
   1440 with continuous virtual time, `time_warp_allowed` from `ALLOW_TIME_WARP`, 403 when it
   is not true)
   - Tests: 403 when not allowed; virtual time continuous across toggles.
