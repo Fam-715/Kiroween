@@ -119,12 +119,12 @@ scoring, stability and strength, and applies each event once (idempotent on
 - [x] 7.4 Theme tokens, fonts and base layout (shelf / recorder / player routes)
   - _Requirements: 9.6_
 
-- [ ] 8. Recorder UI and Demo mode toggle
+- [x] 8. Recorder UI and Demo mode toggle
 - [x] 8.1 Recorder UI
   - Side columns, add/reorder/remove items, key terms chips (3–5), live tape-remaining bars,
     inline rule errors, and the Demo mode minimum (1 minute) when enabled.
   - _Requirements: 2.1–2.8_
-- [ ] 8.2 Demo mode toggle: `Settings` panel with the "Demo mode" toggle (labelled as text while on)
+- [x] 8.2 Demo mode toggle: `Settings` panel with the "Demo mode" toggle (labelled as text while on)
   - The time warp toggle and "Load sample tape" button are added in task 14.3.
   - _Requirements: 12.1, 12.2, 12.3_
 
