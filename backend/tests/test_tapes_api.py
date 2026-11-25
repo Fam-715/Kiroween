@@ -236,3 +236,52 @@ def test_delete_removes_tape_sessions_and_recalls(env) -> None:
     assert db.exec(select(TapeItem)).all() == []
     assert db.exec(select(StudySession)).all() == []
     assert db.exec(select(Recall)).all() == []
+
+
+def test_sample_tape_seeds_memory_and_recalls(env) -> None:
+    client, db, _ = env
+    res = client.post("/api/tapes/sample")
+    assert res.status_code == 201
+    data = res.json()
+    assert data["is_sample"] is True
+    assert data["title"] == "Sample: Biology Basics" and data["length"] == "C60"
+    assert [i["kind"] for i in data["side_a"]] == ["track", "interlude", "track"]
+    assert [i["kind"] for i in data["side_b"]] == ["track", "interlude", "track"]
+    tracks = [i for i in data["side_a"] + data["side_b"] if i["kind"] == "track"]
+    assert [t["name"] for t in tracks] == [
+        "Photosynthesis",
+        "Cell respiration",
+        "Enzymes",
+        "DNA replication",
+    ]
+    assert [len(t["key_terms"]) for t in tracks] == [4, 4, 4, 5]
+    memory = [(t["memory"]["strength"], t["memory"]["condition"], t["memory"]["due"]) for t in tracks]
+    assert memory == [
+        (90, "Mint", False),
+        (67, "Worn", True),
+        (29, "Warped", True),
+        (8, "Haunted", True),
+    ]
+    assert data["strength"] == 49 and data["condition"] == "Warped"
+    assert data["due_count"] == 3 and data["ghost"] is False
+
+    recalls = db.exec(select(Recall)).all()
+    assert len(recalls) == 4
+    assert sorted(r.score for r in recalls) == [0.4, 0.75, 0.75, 0.75]
+    assert {r.track_id for r in recalls} == {UUID(t["id"]) for t in tracks}
+    assert db.get(Tape, UUID(data["id"])).is_sample is True
+
+
+def test_sample_tape_is_scoped_and_listed_only_for_its_listener(env) -> None:
+    client, _, _ = env
+    tape_id = client.post("/api/tapes/sample").json()["id"]
+    assert [t["id"] for t in client.get("/api/tapes").json()] == [tape_id]
+    other = {"X-Listener-Id": str(uuid4())}
+    assert client.get("/api/tapes", headers=other).json() == []
+    assert client.get(f"/api/tapes/{tape_id}", headers=other).status_code == 404
+
+
+def test_sample_tape_requires_listener_header(env) -> None:
+    client, _, _ = env
+    res = client.post("/api/tapes/sample", headers={"X-Listener-Id": "nope"})
+    assert res.status_code == 400

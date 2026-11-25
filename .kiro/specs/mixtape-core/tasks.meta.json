@@ -199,6 +199,18 @@
         "chatSessionId": "sess_af0fc968-f2d3-42ea-91ad-08742f7e8dc0",
         "timestamp": 1795597634820
       }
+    ],
+    "14.2 Backend: `domain/sample.py` and `POST /api/tapes/sample`": [
+      {
+        "executionId": "bf036587-fcef-4c43-8ee8-72a2cb3622d4",
+        "chatSessionId": "sess_ea6a6c31-02d7-455b-8ba7-9e06adac72f9",
+        "timestamp": 1795598022479
+      },
+      {
+        "executionId": "bf036587-fcef-4c43-8ee8-72a2cb3622d4",
+        "chatSessionId": "sess_ea6a6c31-02d7-455b-8ba7-9e06adac72f9",
+        "timestamp": 1795598227396
+      }
     ]
   }
 }

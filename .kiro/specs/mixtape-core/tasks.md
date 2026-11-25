@@ -184,7 +184,7 @@ and the track's strength, then skip a break and watch stability drop in the resp
   is not true)
   - Tests: 403 when not allowed; virtual time continuous across toggles.
   - _Requirements: 12.4–12.8_
-- [ ] 14.2 Backend: `domain/sample.py` and `POST /api/tapes/sample`
+- [x] 14.2 Backend: `domain/sample.py` and `POST /api/tapes/sample`
   - Property tests: the sample is valid, deterministic, and has exactly one Mint, one Worn
     (due), one Warped and one Haunted track at creation.
   - _Requirements: 12.9, 12.10_
