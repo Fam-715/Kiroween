@@ -112,3 +112,60 @@ def test_one_minute_track_needs_demo_mode(env) -> None:
     assert client.post("/api/tapes", json=one_minute_tape(), headers=h).status_code == 422
     client.put("/api/settings", json={"demo_mode": True}, headers=h)
     assert client.post("/api/tapes", json=one_minute_tape(), headers=h).status_code == 201
+
+
+def test_time_warp_forbidden_when_not_allowed(env, monkeypatch) -> None:
+    monkeypatch.delenv("ALLOW_TIME_WARP", raising=False)
+    client, lid = env
+    h = {"X-Listener-Id": lid}
+    assert client.put("/api/settings", json={"time_warp": True}, headers=h).status_code == 403
+    body = client.get("/api/settings", headers=h).json()
+    assert body["time_warp_enabled"] is False and body["time_scale"] == 1
+    # turning it off is always fine
+    assert client.put("/api/settings", json={"time_warp": False}, headers=h).status_code == 200
+
+
+def test_time_warp_toggle_is_continuous(env, monkeypatch) -> None:
+    monkeypatch.setenv("ALLOW_TIME_WARP", "true")
+    client, lid = env
+    h = {"X-Listener-Id": lid}
+
+    def vnow(body: dict) -> datetime:
+        return datetime.fromisoformat(body["virtual_now"])
+
+    before = client.get("/api/settings", headers=h).json()
+    on = client.put("/api/settings", json={"time_warp": True}, headers=h).json()
+    assert on["time_warp_enabled"] is True and on["time_scale"] == 1440
+    assert on["time_warp_allowed"] is True
+    # virtual time did not jump at the toggle (well under a minute of drift)
+    assert 0 <= (vnow(on) - vnow(before)).total_seconds() < 3600
+    off = client.put("/api/settings", json={"time_warp": False}, headers=h).json()
+    assert off["time_warp_enabled"] is False and off["time_scale"] == 1
+    assert 0 <= (vnow(off) - vnow(on)).total_seconds() < 3600
+    # demo_mode untouched by a time_warp-only PUT
+    assert off["demo_mode"] is False
+
+
+def test_time_warp_put_keeps_demo_mode_and_vice_versa(env, monkeypatch) -> None:
+    monkeypatch.setenv("ALLOW_TIME_WARP", "true")
+    client, lid = env
+    h = {"X-Listener-Id": lid}
+    client.put("/api/settings", json={"demo_mode": True}, headers=h)
+    res = client.put("/api/settings", json={"time_warp": True}, headers=h).json()
+    assert res["demo_mode"] is True and res["time_warp_enabled"] is True
+    res = client.put("/api/settings", json={"demo_mode": False}, headers=h).json()
+    assert res["time_warp_enabled"] is True
+
+
+def test_time_warp_runs_faster_than_real(env, monkeypatch) -> None:
+    import time
+
+    monkeypatch.setenv("ALLOW_TIME_WARP", "true")
+    client, lid = env
+    h = {"X-Listener-Id": lid}
+    a = client.put("/api/settings", json={"time_warp": True}, headers=h).json()
+    time.sleep(0.05)
+    b = client.get("/api/settings", headers=h).json()
+    dv = (datetime.fromisoformat(b["virtual_now"]) - datetime.fromisoformat(a["virtual_now"])).total_seconds()
+    dr = (datetime.fromisoformat(b["real_now"]) - datetime.fromisoformat(a["real_now"])).total_seconds()
+    assert dv == pytest.approx(dr * 1440, rel=1e-6)
