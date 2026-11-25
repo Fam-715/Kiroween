@@ -66,6 +66,15 @@ class TapeItemOut(BaseModel):
     memory: TrackMemoryOut | None  # tracks only
 
 
+class TapeStatsOut(BaseModel):
+    """Liner-note stats computed from the tape's sessions."""
+
+    sessions: int = 0
+    focus_minutes: int = 0  # sum of completed track durations
+    tracks_completed: int = 0
+    tracks_skipped: int = 0
+
+
 class TapeOut(BaseModel):
     id: UUID
     title: str
@@ -82,6 +91,47 @@ class TapeOut(BaseModel):
     due_count: int
     next_review_at: datetime | None
     ghost: bool
+    stats: TapeStatsOut = Field(default_factory=TapeStatsOut)
+
+
+# --- Sessions ----------------------------------------------------------------------
+class PenaltyOut(BaseModel):
+    track_id: UUID
+    stability_before: float
+    stability_after: float
+
+
+class SessionStartOut(BaseModel):
+    id: UUID
+    tape_id: UUID
+    started_at: datetime
+    ended_at: datetime | None
+
+
+class SessionEventIn(BaseModel):
+    client_event_id: UUID
+    type: Literal["complete", "skip"]
+    item_id: UUID
+
+
+class SessionEventOut(BaseModel):
+    client_event_id: UUID
+    type: Literal["complete", "skip"]
+    item_id: UUID | None
+    penalty: list[PenaltyOut]
+    session_ended: bool
+
+
+class SessionSummaryOut(BaseModel):
+    id: UUID
+    tape_id: UUID
+    started_at: datetime
+    ended_at: datetime
+    abandoned: bool
+    penalty: list[PenaltyOut]
+    tracks_completed: int
+    tracks_skipped: int
+    focus_minutes: int
 
 
 # --- Settings ----------------------------------------------------------------------

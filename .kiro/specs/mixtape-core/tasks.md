@@ -79,7 +79,7 @@ scoring, stability and strength, and applies each event once (idempotent on
     to set the track minimum. The time warp fields are added in task 14.1.
   - _Requirements: 12.1, 12.2_
 
-- [ ] 5. Session API
+- [x] 5. Session API
   - Start, events (`complete` and `skip` only; idempotent on `client_event_id`; returns the
     `penalty` list with stability before and after), and automatic session end after the last
     item on Side B.
