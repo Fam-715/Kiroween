@@ -2,7 +2,7 @@
 
 from datetime import UTC, datetime
 from typing import Annotated
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlmodel import Session as DbSession
@@ -10,7 +10,7 @@ from sqlmodel import col, delete, select
 
 from app.db import get_session
 from app.deps import get_listener
-from app.domain import schedule, strength
+from app.domain import sample, schedule, strength
 from app.domain.clock import Clock, virtual_now
 from app.models import Listener, Recall, SessionEvent, Tape, TapeItem, utcnow
 from app.models import Session as StudySession
@@ -221,6 +221,62 @@ def create_tape(body: TapeIn, db: Db, listener: CurrentListener) -> TapeOut:
     db.commit()
     db.refresh(tape)
     return _tape_out(tape, items, _virtual_now(listener))
+
+
+@router.post("/tapes/sample", response_model=TapeOut, status_code=201)
+def create_sample_tape(db: Db, listener: CurrentListener) -> TapeOut:
+    """Seed the sample tape (four tracks at different strengths, no audio)."""
+    now = _virtual_now(listener)
+    spec = sample.sample_tape(now)
+    tape = Tape(
+        listener_id=listener.listener_id,
+        title=spec.title,
+        length=spec.length,
+        is_sample=spec.is_sample,
+    )
+    db.add(tape)
+    db.flush()
+    items: list[TapeItem] = []
+    for side, source in (("A", spec.side_a), ("B", spec.side_b)):
+        for pos, src in enumerate(source):
+            seeded = next((t for t in spec.tracks if t.item is src), None)
+            item = TapeItem(
+                tape_id=tape.id,
+                side=side,
+                position=pos,
+                kind=src.kind,
+                name=src.name,
+                minutes=src.minutes,
+                key_terms=list(src.key_terms) if src.key_terms else None,
+                stability_days=seeded.memory.stability_days if seeded else strength.S_INITIAL,
+            )
+            if seeded is not None:
+                mem = seeded.memory
+                item.base_strength = mem.base_strength
+                item.last_reviewed_at = mem.last_reviewed_at
+                item.review_count = mem.review_count
+            items.append(item)
+            db.add(item)
+            if seeded is not None:
+                db.flush()
+                db.add(
+                    Recall(
+                        track_id=item.id,
+                        client_event_id=uuid4(),
+                        at=mem.last_reviewed_at,
+                        source="typed",
+                        score=mem.score,
+                        matched_terms=list(mem.matched_terms),
+                        missed_terms=list(mem.missed_terms),
+                        strength_before=None,
+                        strength_after=mem.base_strength,
+                        stability_before=mem.stability_days,
+                        stability_after=mem.stability_days,
+                    )
+                )
+    db.commit()
+    db.refresh(tape)
+    return _tape_out(tape, items, now)
 
 
 @router.get("/tapes/{tape_id}", response_model=TapeOut)
