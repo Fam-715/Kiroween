@@ -223,6 +223,25 @@
         "chatSessionId": "sess_662a919b-a611-412a-a86d-37083fbe826a",
         "timestamp": 1795606891828
       }
+    ],
+    "7.3 `domain/effects.ts` (`effectsFor`, `fadeGain`; numeric table in design.md)": [
+      {
+        "executionId": "86ffe433-7fba-47cd-8d43-bc03ead18f57",
+        "chatSessionId": "sess_db212c6a-9899-4c70-bfcf-7780b6de5446",
+        "timestamp": 1795610029251
+      },
+      {
+        "executionId": "37f21225-a017-4aa0-923b-d489e38d575d",
+        "chatSessionId": "sess_db212c6a-9899-4c70-bfcf-7780b6de5446",
+        "timestamp": 1795611949909
+      }
+    ],
+    "7. Frontend foundation": [
+      {
+        "executionId": "37f21225-a017-4aa0-923b-d489e38d575d",
+        "chatSessionId": "sess_db212c6a-9899-4c70-bfcf-7780b6de5446",
+        "timestamp": 1795611950021
+      }
     ]
   }
 }
