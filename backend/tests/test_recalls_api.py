@@ -79,9 +79,11 @@ def test_rerecord_after_long_time_raises_stability() -> None:
     item.last_reviewed_at = utcnow() - timedelta(days=30)
     db.add(item)
     db.commit()
-    mem = post(client, t1, FULL).json()["memory"]
+    second_id = uuid4()
+    mem = post(client, t1, FULL, str(second_id)).json()["memory"]
     assert mem["stability_days"] > before
-    row = db.exec(select(Recall).order_by(Recall.at.desc())).first()  # type: ignore[attr-defined]
+    # Look the row up by its event id: two recalls a moment apart can share a timestamp.
+    row = db.exec(select(Recall).where(Recall.client_event_id == second_id)).first()
     assert row is not None and row.stability_after > row.stability_before
     assert row.strength_before == 0
 
