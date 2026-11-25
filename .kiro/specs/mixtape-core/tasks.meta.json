@@ -211,6 +211,25 @@
         "chatSessionId": "sess_ea6a6c31-02d7-455b-8ba7-9e06adac72f9",
         "timestamp": 1795598227396
       }
+    ],
+    "8.2 Demo mode toggle: `Settings` panel with the \"Demo mode\" toggle (labelled as text while on)": [
+      {
+        "executionId": "0984088e-b461-4170-9440-95704798b386",
+        "chatSessionId": "sess_d7f74fb5-15ef-4d82-acd1-780ed9a82112",
+        "timestamp": 1795600098762
+      },
+      {
+        "executionId": "0984088e-b461-4170-9440-95704798b386",
+        "chatSessionId": "sess_d7f74fb5-15ef-4d82-acd1-780ed9a82112",
+        "timestamp": 1795600846087
+      }
+    ],
+    "8. Recorder UI and Demo mode toggle": [
+      {
+        "executionId": "0984088e-b461-4170-9440-95704798b386",
+        "chatSessionId": "sess_d7f74fb5-15ef-4d82-acd1-780ed9a82112",
+        "timestamp": 1795600846413
+      }
     ]
   }
 }
