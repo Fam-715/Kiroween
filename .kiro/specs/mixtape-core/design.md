@@ -139,7 +139,8 @@ def tape_condition(strengths: list[int]) -> Condition
 2. `factor = stability_factor(score)`. If `factor > 1` and the track was recalled before and
    `ratio > ELIGIBLE_RATIO`, use `factor = 1`.
 3. `S' = clamp(S × factor, S_MIN, S_MAX)`.
-4. `base' = 100` if `score ≥ PASS_SCORE`, else `round_half_up(score × 100)`.
+4. `base' = 100` if `score ≥ PASS_SCORE`, else `max(round_half_up(score × 100), POOR_BASE_FLOOR)` with `POOR_BASE_FLOOR = 20`. A single
+   failed recall leaves the track Warped at worst; Dead is reached only through decay.
 5. `last_reviewed_at' = now`, `review_count' = review_count + 1`.
 
 The result is monotonic: for the same state, a higher score never gives a lower `S'`.

@@ -134,6 +134,23 @@ class SessionSummaryOut(BaseModel):
     focus_minutes: int
 
 
+# --- Recalls -----------------------------------------------------------------------
+RECALL_TEXT_MAX = 5000
+
+
+class RecallIn(BaseModel):
+    client_event_id: UUID
+    text: str = Field(max_length=RECALL_TEXT_MAX)  # scored, never stored or logged
+    source: Literal["speech", "typed"]
+
+
+class RecallOut(BaseModel):
+    score: float
+    matched: list[str]
+    missed: list[str]
+    memory: TrackMemoryOut
+
+
 # --- Settings ----------------------------------------------------------------------
 class SettingsIn(BaseModel):
     """Body of PUT /api/settings."""

@@ -17,6 +17,7 @@ S_INITIAL = 1.0
 S_MIN = 0.25
 S_MAX = 60.0  # days
 PASS_SCORE = 0.6
+POOR_BASE_FLOOR = 20  # a failed recall never drops base strength below Warped
 DUE_STRENGTH = 70.0  # unrounded strength at or below this is due
 ELIGIBLE_RATIO = 0.9  # stability may rise only if decay ratio <= this
 PENALTY: dict[str, float] = {"skip_interlude": 0.9, "skip_track": 0.95, "abandon": 0.8}
@@ -74,7 +75,11 @@ def review(mem: TrackMemory, score: float, now: datetime) -> TrackMemory:
         elapsed = (now - mem.last_reviewed_at).total_seconds() / 86400
         if decay_ratio(elapsed, mem.stability_days) > ELIGIBLE_RATIO:
             factor = 1.0
-    base = 100 if score >= PASS_SCORE else _round_half_up(score * 100)
+    base = (
+        100
+        if score >= PASS_SCORE
+        else max(_round_half_up(score * 100), POOR_BASE_FLOOR)
+    )
     return replace(
         mem,
         base_strength=base,
