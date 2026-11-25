@@ -198,7 +198,7 @@ and the track's strength, then skip a break and watch stability drop in the resp
   - Property test: total focus minutes equals the sum of completed track durations; the due
     count equals tracks with unrounded strength ≤ 70.
   - _Requirements: 6.10, 6.11, 8.1–8.7, 11.1–11.6_
-- [ ] 16. Procedural focus audio
+- [x] 16. Procedural focus audio
   - Brown noise, rain, lo-fi loop; 2 s linear fade on interludes; volume 0–100% and mute;
     start only on PLAY. Improve the simple completion chime from task 9.3 if time allows.
   - _Requirements: 10.1–10.5_
