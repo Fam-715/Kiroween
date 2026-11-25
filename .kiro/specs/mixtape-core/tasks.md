@@ -120,7 +120,7 @@ scoring, stability and strength, and applies each event once (idempotent on
   - _Requirements: 9.6_
 
 - [ ] 8. Recorder UI and Demo mode toggle
-- [ ] 8.1 Recorder UI
+- [x] 8.1 Recorder UI
   - Side columns, add/reorder/remove items, key terms chips (3–5), live tape-remaining bars,
     inline rule errors, and the Demo mode minimum (1 minute) when enabled.
   - _Requirements: 2.1–2.8_
