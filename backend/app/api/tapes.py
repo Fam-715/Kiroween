@@ -12,9 +12,16 @@ from app.db import get_session
 from app.deps import get_listener
 from app.domain import schedule, strength
 from app.domain.clock import Clock, virtual_now
-from app.models import Listener, Recall, Tape, TapeItem, utcnow
+from app.models import Listener, Recall, SessionEvent, Tape, TapeItem, utcnow
 from app.models import Session as StudySession
-from app.schemas import TapeIn, TapeItemIn, TapeItemOut, TapeOut, TrackMemoryOut
+from app.schemas import (
+    TapeIn,
+    TapeItemIn,
+    TapeItemOut,
+    TapeOut,
+    TapeStatsOut,
+    TrackMemoryOut,
+)
 
 router = APIRouter(tags=["tapes"])
 
@@ -78,7 +85,31 @@ def _item_out(item: TapeItem, now: datetime) -> TapeItemOut:
     )
 
 
-def _tape_out(tape: Tape, items: list[TapeItem], now: datetime) -> TapeOut:
+def _stats(db: DbSession, tape_id: UUID, items: list[TapeItem]) -> TapeStatsOut:
+    """Liner-note stats from the tape's sessions and their events."""
+    session_ids = list(db.exec(select(StudySession.id).where(StudySession.tape_id == tape_id)))
+    stats = TapeStatsOut(sessions=len(session_ids))
+    if not session_ids:
+        return stats
+    by_id = {i.id: i for i in items}
+    events = db.exec(
+        select(SessionEvent).where(col(SessionEvent.session_id).in_(session_ids))
+    ).all()
+    for ev in events:
+        item = by_id.get(ev.item_id) if ev.item_id else None
+        if item is None or item.kind != "track":
+            continue
+        if ev.type == "complete":
+            stats.tracks_completed += 1
+            stats.focus_minutes += item.minutes
+        elif ev.type == "skip":
+            stats.tracks_skipped += 1
+    return stats
+
+
+def _tape_out(
+    tape: Tape, items: list[TapeItem], now: datetime, stats: TapeStatsOut | None = None
+) -> TapeOut:
     ordered = sorted(items, key=lambda i: i.position)
     side_a = [_item_out(i, now) for i in ordered if i.side == "A"]
     side_b = [_item_out(i, now) for i in ordered if i.side == "B"]
@@ -105,6 +136,7 @@ def _tape_out(tape: Tape, items: list[TapeItem], now: datetime) -> TapeOut:
         due_count=sum(1 for m in memories if m.due),
         next_review_at=min(reviews) if reviews else None,
         ghost=strength.is_ghost(strengths),
+        stats=stats or TapeStatsOut(),
     )
 
 
@@ -167,7 +199,11 @@ def list_tapes(db: Db, listener: CurrentListener) -> list[TapeOut]:
     tapes = db.exec(
         select(Tape).where(Tape.listener_id == listener.listener_id).order_by(col(Tape.created_at))
     ).all()
-    return [_tape_out(t, _items_of(db, t.id), now) for t in tapes]
+    result = []
+    for t in tapes:
+        items = _items_of(db, t.id)
+        result.append(_tape_out(t, items, now, _stats(db, t.id, items)))
+    return result
 
 
 @router.post("/tapes", response_model=TapeOut, status_code=201)
@@ -190,7 +226,8 @@ def create_tape(body: TapeIn, db: Db, listener: CurrentListener) -> TapeOut:
 @router.get("/tapes/{tape_id}", response_model=TapeOut)
 def get_tape(tape_id: UUID, db: Db, listener: CurrentListener) -> TapeOut:
     tape = _get_tape(db, listener, tape_id)
-    return _tape_out(tape, _items_of(db, tape.id), _virtual_now(listener))
+    items = _items_of(db, tape.id)
+    return _tape_out(tape, items, _virtual_now(listener), _stats(db, tape.id, items))
 
 
 @router.put("/tapes/{tape_id}", response_model=TapeOut)
@@ -246,7 +283,8 @@ def update_tape(tape_id: UUID, body: TapeIn, db: Db, listener: CurrentListener) 
     db.add(tape)
     db.commit()
     db.refresh(tape)
-    return _tape_out(tape, _items_of(db, tape.id), _virtual_now(listener))
+    items = _items_of(db, tape.id)
+    return _tape_out(tape, items, _virtual_now(listener), _stats(db, tape.id, items))
 
 
 @router.delete("/tapes/{tape_id}", status_code=204)
