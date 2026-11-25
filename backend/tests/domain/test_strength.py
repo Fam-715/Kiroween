@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+import math
 from datetime import datetime, timedelta, timezone
 
 from hypothesis import given, strategies as st
@@ -72,6 +73,17 @@ def test_passing_score_gives_base_100(mem, score, d):
     assert review(mem, score, T0 + timedelta(days=d)).base_strength == 100
 
 
+@given(memories(), st.floats(min_value=0, max_value=0.5999, allow_nan=False), days)
+def test_poor_score_base_floored_and_warped(mem, score, d):
+    out = review(mem, score, T0 + timedelta(days=d))
+    assert out.base_strength == max(math.floor(score * 100 + 0.5), 20)
+    assert 20 <= out.base_strength < 100
+    assert condition(strength_at(out.base_strength, out.stability_days, 0)) in (
+        "Warped",
+        "Worn",
+    )
+
+
 @given(st.integers(0, 100), stab, st.floats(min_value=0, max_value=500, allow_nan=False))
 def test_due_matches_next_review_time(base, s, elapsed):
     nxt = next_review_at(T0, base, s)
@@ -107,3 +119,7 @@ def test_examples():
     assert tape_strength([]) is None and tape_condition([]) == "Mint"
     assert tape_strength([0, 1]) == 1
     assert st_mod.stability_factor(0.6) == 1.2
+    mem = TrackMemory(100, 1.0, None, 0)
+    assert review(mem, 0.0, T0).base_strength == 20
+    assert review(mem, 0.1, T0).base_strength == 20
+    assert review(mem, 0.35, T0).base_strength == 35

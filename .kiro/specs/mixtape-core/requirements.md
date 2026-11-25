@@ -228,8 +228,10 @@ what I need to review.
 4. The system SHALL map strength to a condition: Mint (80–100), Worn (50–79), Warped
    (20–49), Haunted (1–19), Dead (0).
 5. WHEN a recall is scored THEN the system SHALL set the last review time to the current
-   virtual time, and the base strength to 100 if the score is at least 0.6, or to the score
-   times 100 rounded half up otherwise.
+   virtual time, and the base strength to 100 if the score is at least 0.6, or to the
+   greater of 20 and the score times 100 rounded half up otherwise. A single failed recall
+   therefore leaves the track at Warped or better. A track SHALL reach Dead only through
+   decay over time.
 6. WHEN a recall is scored THEN the system SHALL multiply stability by a factor that depends
    on the score and clamp the result to 0.25–60 days. The factor SHALL be 0.5 to 0.95 below
    a score of 0.6, rising with the score, and 1.2 to 2.5 from 0.6 up, rising with the score.
@@ -307,7 +309,8 @@ when to review next, so that I remember it for longer each time.
 
 _Property (PBT): a track is due at virtual time t exactly when t is at or after its next
 review time; a recall with a score of 0.6 or more always produces base strength 100 and
-never produces a lower strength than before the review; the next review time is never before
+never produces a lower strength than before the review; a recall with a score below 0.6
+always produces a base strength of at least 20; the next review time is never before
 the last review time._
 
 ### Requirement 9: Haunted presentation driven by condition

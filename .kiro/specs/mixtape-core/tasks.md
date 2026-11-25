@@ -92,7 +92,7 @@ scoring, stability and strength, and applies each event once (idempotent on
     second stop applies no second penalty.
   - _Requirements: 3.1, 3.8, 3.9, 4.1–4.6, 4.9, 4.10, 13.3, 11.4, 11.5_
 
-- [ ] 6. Recall API
+- [x] 6. Recall API
   - `POST /api/tracks/{id}/recalls` `{client_event_id, text, source}`: scores, updates the
     track via `review`, stores a Recall row without the text, returns
     `{score, matched, missed, memory}`. Idempotent on `client_event_id`. Text limit 5000
