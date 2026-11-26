@@ -212,6 +212,7 @@
         "timestamp": 1795598227396
       }
     ],
+
     "7.2 `domain/strength.ts`, `domain/clock.ts` (mirror the backend) and the": [
       {
         "executionId": "a7edb569-731d-4af4-9044-66b32e78b14b",
@@ -222,6 +223,48 @@
         "executionId": "a7edb569-731d-4af4-9044-66b32e78b14b",
         "chatSessionId": "sess_662a919b-a611-412a-a86d-37083fbe826a",
         "timestamp": 1795606891828
+      }
+    ],
+    "8.2 Demo mode toggle: `Settings` panel with the \"Demo mode\" toggle (labelled as text while on)": [
+      {
+        "executionId": "0984088e-b461-4170-9440-95704798b386",
+        "chatSessionId": "sess_d7f74fb5-15ef-4d82-acd1-780ed9a82112",
+        "timestamp": 1795600098762
+      },
+      {
+        "executionId": "0984088e-b461-4170-9440-95704798b386",
+        "chatSessionId": "sess_d7f74fb5-15ef-4d82-acd1-780ed9a82112",
+        "timestamp": 1795600846087
+      }
+    ],
+    "8. Recorder UI and Demo mode toggle": [
+      {
+        "executionId": "0984088e-b461-4170-9440-95704798b386",
+        "chatSessionId": "sess_d7f74fb5-15ef-4d82-acd1-780ed9a82112",
+        "timestamp": 1795600846413
+      }
+    ],
+    "16. Procedural focus audio": [
+      {
+        "executionId": "e59a5549-d79d-4b3d-afe5-e11737243d78",
+        "chatSessionId": "sess_47ea7682-aed3-4350-9db3-2028c0794b9a",
+        "timestamp": 1795624339432
+      },
+      {
+        "executionId": "e59a5549-d79d-4b3d-afe5-e11737243d78",
+        "chatSessionId": "sess_47ea7682-aed3-4350-9db3-2028c0794b9a",
+        "timestamp": 1795624651140
+      },
+      {
+        "executionId": "ae9bea45-6ec5-4f52-bc71-a0abdb1c42f7",
+        "chatSessionId": "sess_47ea7682-aed3-4350-9db3-2028c0794b9a",
+        "timestamp": 1795625038006
+      },
+      {
+        "executionId": "ae9bea45-6ec5-4f52-bc71-a0abdb1c42f7",
+        "chatSessionId": "sess_47ea7682-aed3-4350-9db3-2028c0794b9a",
+        "timestamp": 1795625501993
+
       }
     ]
   }
