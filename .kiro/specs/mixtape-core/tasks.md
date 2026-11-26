@@ -183,7 +183,7 @@ and the track's strength, then skip a break and watch stability drop in the resp
     tracks in the tape map, and a static outline with reduced motion.
   - Component test: the toast and affected tracks show after a skipped interlude.
   - _Requirements: 4.7, 4.8_
-- [ ] 14. Demo settings
+- [x] 14. Demo settings
 - [x] 14.1 Backend: extend `GET/PUT /api/settings` (from task 4.2) with time warp (scale 1 or
   1440 with continuous virtual time, `time_warp_allowed` from `ALLOW_TIME_WARP`, 403 when it
   is not true)
@@ -193,7 +193,7 @@ and the track's strength, then skip a break and watch stability drop in the resp
   - Property tests: the sample is valid, deterministic, and has exactly one Mint, one Worn
     (due), one Warped and one Haunted track at creation.
   - _Requirements: 12.9, 12.10_
-- [ ] 14.3 Frontend `Settings`: add the "Demo time warp" toggle (hidden when not allowed, with
+- [x] 14.3 Frontend `Settings`: add the "Demo time warp" toggle (hidden when not allowed, with
   a "TIME WARP ON" label) and the "Load sample tape" button to the panel from task 8.2
   - _Requirements: 12.5, 12.8, 12.9_
 - [x] 15. Haunted shelf, J-card and restore

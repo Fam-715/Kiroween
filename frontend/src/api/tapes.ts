@@ -109,6 +109,16 @@ export function getSettings(): Promise<SettingsWire> {
   return apiFetch<SettingsWire>("/api/settings");
 }
 
-export function putSettings(demoMode: boolean): Promise<SettingsWire> {
-  return apiFetch<SettingsWire>("/api/settings", { method: "PUT", body: { demo_mode: demoMode } });
+export interface SettingsUpdate {
+  demo_mode?: boolean;
+  time_warp?: boolean;
+}
+
+export function putSettings(update: SettingsUpdate): Promise<SettingsWire> {
+  return apiFetch<SettingsWire>("/api/settings", { method: "PUT", body: update });
+}
+
+/** Creates the sample tape (four tracks at different strengths, no audio). */
+export function createSampleTape(): Promise<TapeWire> {
+  return apiFetch<TapeWire>("/api/tapes/sample", { method: "POST" });
 }

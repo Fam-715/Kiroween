@@ -298,6 +298,25 @@
         "chatSessionId": "sess_aae022dc-23df-48c5-8530-66edbf7a4f09",
         "timestamp": 1795680363584
       }
+    ],
+    "14.3 Frontend `Settings`: add the \"Demo time warp\" toggle (hidden when not allowed, with": [
+      {
+        "executionId": "94d1632e-07b6-4e8b-b72d-613fbf12a1bf",
+        "chatSessionId": "sess_a44715f3-c965-4646-841c-e9267067e010",
+        "timestamp": 1795685965720
+      },
+      {
+        "executionId": "94d1632e-07b6-4e8b-b72d-613fbf12a1bf",
+        "chatSessionId": "sess_a44715f3-c965-4646-841c-e9267067e010",
+        "timestamp": 1795686523000
+      }
+    ],
+    "14. Demo settings": [
+      {
+        "executionId": "94d1632e-07b6-4e8b-b72d-613fbf12a1bf",
+        "chatSessionId": "sess_a44715f3-c965-4646-841c-e9267067e010",
+        "timestamp": 1795686523452
+      }
     ]
   }
 }

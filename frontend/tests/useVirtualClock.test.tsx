@@ -46,6 +46,23 @@ describe("useVirtualClock", () => {
     expect(result.current.warpOn).toBe(false);
   });
 
+  // Validates: Requirements 12.5
+  it("refreshes when the settings-changed event fires", async () => {
+    getSettings.mockResolvedValue(settings(1));
+    const { result } = renderHook(() => useVirtualClock());
+    await flush();
+    expect(result.current.warpOn).toBe(false);
+    expect(getSettings).toHaveBeenCalledTimes(1);
+
+    getSettings.mockResolvedValue(settings(1440));
+    act(() => {
+      window.dispatchEvent(new Event("cursed-cassette:settings-changed"));
+    });
+    await flush();
+    expect(getSettings).toHaveBeenCalledTimes(2);
+    expect(result.current.warpOn).toBe(true);
+  });
+
   it("applies the time scale when warp is on", async () => {
     getSettings.mockResolvedValue(settings(1440));
     const { result } = renderHook(() => useVirtualClock());
