@@ -148,7 +148,7 @@ scoring, stability and strength, and applies each event once (idempotent on
   - The timer and audio never stop on network failure.
   - _Requirements: 3.5, 5.1, 13.1, 13.2_
 
-- [ ] 10. Typed recall and strength display
+- [x] 10. Typed recall and strength display
   - `RecallPanel` with the typing path only (the same panel will gain voice in task 11):
     submit text, show the score, matched and missed terms. Show each track's strength,
     condition, stability and next review on the tape page, updated with `strength.ts` between
