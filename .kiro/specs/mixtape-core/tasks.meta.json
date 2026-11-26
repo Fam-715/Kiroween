@@ -286,6 +286,18 @@
         "chatSessionId": "sess_03a8d498-b6a3-4b3e-ad82-8899445a5812",
         "timestamp": 1795684004784
       }
+    ],
+    "9.1 `useTapePlayer` state machine with timestamp-based countdown and reload resume": [
+      {
+        "executionId": "15053a2e-8f67-45cd-a836-3eda337d86e5",
+        "chatSessionId": "sess_aae022dc-23df-48c5-8530-66edbf7a4f09",
+        "timestamp": 1795679831347
+      },
+      {
+        "executionId": "15053a2e-8f67-45cd-a836-3eda337d86e5",
+        "chatSessionId": "sess_aae022dc-23df-48c5-8530-66edbf7a4f09",
+        "timestamp": 1795680363584
+      }
     ]
   }
 }
