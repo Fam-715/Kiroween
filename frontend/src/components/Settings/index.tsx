@@ -10,7 +10,16 @@
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
-import { getSettings, putSettings, type SettingsWire } from "../../api/tapes";
+import { useNavigate } from "react-router-dom";
+import { ApiError } from "../../api/client";
+import {
+  createSampleTape,
+  getSettings,
+  putSettings,
+  type SettingsUpdate,
+  type SettingsWire,
+} from "../../api/tapes";
+import { SETTINGS_CHANGED_EVENT } from "../../hooks/useVirtualClock";
 
 // ---------------------------------------------------------------------------
 // Gear icon (SVG, inline, no external assets)
@@ -58,9 +67,27 @@ export function DemoModeBadge() {
 export interface SettingsPanelProps {
   /** Called whenever demo_mode changes so the parent can update its own state. */
   onDemoModeChange?: (demoMode: boolean) => void;
+  /** Called whenever time warp changes so the parent can update its own state. */
+  onTimeWarpChange?: (timeWarp: boolean) => void;
 }
 
-export default function SettingsPanel({ onDemoModeChange }: SettingsPanelProps) {
+/** Header label shown while Demo time warp is on (text, not colour alone). */
+export function TimeWarpBadge() {
+  return (
+    <span
+      role="status"
+      aria-live="polite"
+      aria-label="Time warp is active"
+      className="rounded-sm border border-label-orange/70 bg-plum-900 px-2 py-0.5 font-type text-xs uppercase tracking-widest text-label-orangeBright"
+    >
+      TIME WARP ON
+    </span>
+  );
+}
+
+export default function SettingsPanel({ onDemoModeChange, onTimeWarpChange }: SettingsPanelProps) {
+  const navigate = useNavigate();
+  const [sampleLoading, setSampleLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [settings, setSettings] = useState<SettingsWire | null>(null);
   const [loading, setLoading] = useState(false);
@@ -118,18 +145,42 @@ export default function SettingsPanel({ onDemoModeChange }: SettingsPanelProps) 
     return () => document.removeEventListener("mousedown", handleClick, true);
   }, [open]);
 
-  const handleDemoToggle = async (nextValue: boolean) => {
+  const saveSetting = async (update: SettingsUpdate) => {
     if (!settings) return;
     setSaving(true);
     setError(null);
     try {
-      const updated = await putSettings(nextValue);
+      const updated = await putSettings(update);
       setSettings(updated);
       onDemoModeChange?.(updated.demo_mode);
-    } catch {
-      setError("Could not save settings.");
+      onTimeWarpChange?.(updated.time_warp_enabled);
+      // Tell every mounted useVirtualClock to reload (strengths speed up or stop now).
+      window.dispatchEvent(new Event(SETTINGS_CHANGED_EVENT));
+    } catch (e) {
+      setError(
+        e instanceof ApiError && e.status === 403
+          ? "Time warp is not allowed on this server."
+          : "Could not save settings.",
+      );
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleDemoToggle = (nextValue: boolean) => saveSetting({ demo_mode: nextValue });
+  const handleWarpToggle = (nextValue: boolean) => saveSetting({ time_warp: nextValue });
+
+  const handleLoadSample = async () => {
+    setSampleLoading(true);
+    setError(null);
+    try {
+      const tape = await createSampleTape();
+      setOpen(false);
+      navigate(`/tape/${tape.id}`);
+    } catch {
+      setError("Could not load the sample tape. The server may be waking up, try again in a moment.");
+    } finally {
+      setSampleLoading(false);
     }
   };
 
@@ -230,6 +281,69 @@ export default function SettingsPanel({ onDemoModeChange }: SettingsPanelProps) 
                     DEMO MODE — track durations may be 1–50 minutes
                   </p>
                 )}
+
+                {/* Demo time warp toggle: only when the server allows it */}
+                {settings.time_warp_allowed && (
+                  <>
+                    <div className="flex items-center justify-between gap-4">
+                      <div>
+                        <label
+                          htmlFor="settings-time-warp"
+                          className="cursor-pointer font-type text-sm text-ink"
+                        >
+                          Demo time warp
+                        </label>
+                        <p className="mt-0.5 text-xs text-plastic-300">
+                          1 day passes every minute. For demos only.
+                        </p>
+                      </div>
+                      <button
+                        id="settings-time-warp"
+                        type="button"
+                        role="switch"
+                        aria-checked={settings.time_warp_enabled}
+                        aria-label={`Demo time warp ${settings.time_warp_enabled ? "on" : "off"}`}
+                        disabled={saving}
+                        onClick={() => void handleWarpToggle(!settings.time_warp_enabled)}
+                        className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-lcd-green disabled:opacity-50 ${
+                          settings.time_warp_enabled
+                            ? "border-label-teal bg-label-teal"
+                            : "border-plastic-500/60 bg-plum-800"
+                        }`}
+                      >
+                        <span
+                          className={`inline-block h-4 w-4 rounded-full bg-ink shadow transition-transform ${
+                            settings.time_warp_enabled ? "translate-x-5" : "translate-x-0.5"
+                          }`}
+                        />
+                      </button>
+                    </div>
+                    {settings.time_warp_enabled && (
+                      <p
+                        role="status"
+                        className="rounded-sm border border-label-teal/50 bg-plum-800/60 px-2 py-1.5 font-type text-sm text-label-tealBright"
+                      >
+                        TIME WARP ON — 1 day passes every minute
+                      </p>
+                    )}
+                  </>
+                )}
+
+                {/* Load sample tape */}
+                <div>
+                  <button
+                    type="button"
+                    aria-label="Load sample tape"
+                    disabled={sampleLoading}
+                    onClick={() => void handleLoadSample()}
+                    className="rounded-sm border border-plastic-500/40 bg-plum-800 px-3 py-1.5 font-type text-sm text-ink hover:bg-plum-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-lcd-green disabled:opacity-50"
+                  >
+                    {sampleLoading ? "Loading sample tape…" : "Load sample tape"}
+                  </button>
+                  <p className="mt-0.5 text-xs text-plastic-300">
+                    Adds a tape with tracks at every condition.
+                  </p>
+                </div>
               </div>
             )}
 

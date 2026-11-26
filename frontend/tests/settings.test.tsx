@@ -9,8 +9,10 @@
  *                   toggle has role="switch" and aria-checked.
  */
 
-import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render as rtlRender, screen, waitFor } from "@testing-library/react";
 import React from "react";
+import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
+import { ApiError } from "../src/api/client";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import SettingsPanel, { DemoModeBadge } from "../src/components/Settings";
 import * as tapesApi from "../src/api/tapes";
@@ -39,8 +41,27 @@ vi.mock("../src/api/tapes", async (importOriginal) => {
     ...actual,
     getSettings: vi.fn(),
     putSettings: vi.fn(),
+    createSampleTape: vi.fn(),
   };
 });
+
+const mockCreateSample = vi.mocked(tapesApi.createSampleTape);
+
+function LocationProbe() {
+  return <div data-testid="location">{useLocation().pathname}</div>;
+}
+
+// SettingsPanel uses useNavigate, so every render needs a router.
+function render(ui: React.ReactElement) {
+  return rtlRender(
+    <MemoryRouter>
+      {ui}
+      <Routes>
+        <Route path="*" element={<LocationProbe />} />
+      </Routes>
+    </MemoryRouter>,
+  );
+}
 
 const mockGetSettings = vi.mocked(tapesApi.getSettings);
 const mockPutSettings = vi.mocked(tapesApi.putSettings);
@@ -174,7 +195,7 @@ describe("SettingsPanel (task 8.2)", () => {
       fireEvent.click(screen.getByRole("switch", { name: /demo mode/i }));
     });
 
-    expect(mockPutSettings).toHaveBeenCalledWith(true);
+    expect(mockPutSettings).toHaveBeenCalledWith({ demo_mode: true });
   });
 
   it("calls putSettings(false) when toggled off", async () => {
@@ -192,7 +213,7 @@ describe("SettingsPanel (task 8.2)", () => {
       fireEvent.click(screen.getByRole("switch", { name: /demo mode/i }));
     });
 
-    expect(mockPutSettings).toHaveBeenCalledWith(false);
+    expect(mockPutSettings).toHaveBeenCalledWith({ demo_mode: false });
   });
 
   it("fires onDemoModeChange callback with new value after save", async () => {
@@ -272,11 +293,109 @@ describe("SettingsPanel (task 8.2)", () => {
 });
 
 // ---------------------------------------------------------------------------
+// Task 14.3: time warp toggle and sample tape
+// ---------------------------------------------------------------------------
+describe("SettingsPanel (task 14.3)", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  async function openPanel() {
+    fireEvent.click(screen.getByRole("button", { name: "Open settings" }));
+    await waitFor(() =>
+      expect(screen.getByRole("switch", { name: /demo mode/i })).toBeInTheDocument(),
+    );
+  }
+
+  it("hides the time warp toggle when time warp is not allowed", async () => {
+    mockGetSettings.mockResolvedValue(makeSettings({ time_warp_allowed: false }));
+    render(<SettingsPanel />);
+    await openPanel();
+    expect(screen.queryByRole("switch", { name: /time warp/i })).not.toBeInTheDocument();
+  });
+
+  it("shows the toggle (off) when allowed and sends {time_warp: true}", async () => {
+    mockGetSettings.mockResolvedValue(makeSettings({ time_warp_allowed: true }));
+    mockPutSettings.mockResolvedValue(
+      makeSettings({ time_warp_allowed: true, time_warp_enabled: true, time_scale: 1440 }),
+    );
+    const onChange = vi.fn();
+    const events = vi.fn();
+    window.addEventListener("cursed-cassette:settings-changed", events);
+    render(<SettingsPanel onTimeWarpChange={onChange} />);
+    await openPanel();
+
+    const toggle = screen.getByRole("switch", { name: /time warp/i });
+    expect(toggle).toHaveAttribute("aria-checked", "false");
+    expect(screen.getByText("1 day passes every minute. For demos only.")).toBeInTheDocument();
+
+    await act(async () => {
+      fireEvent.click(toggle);
+    });
+
+    expect(mockPutSettings).toHaveBeenCalledWith({ time_warp: true });
+    expect(onChange).toHaveBeenCalledWith(true);
+    expect(events).toHaveBeenCalledTimes(1);
+    expect(screen.getByText(/TIME WARP ON/)).toBeInTheDocument();
+    window.removeEventListener("cursed-cassette:settings-changed", events);
+  });
+
+  it("shows an error on 403 and does not crash", async () => {
+    mockGetSettings.mockResolvedValue(makeSettings({ time_warp_allowed: true }));
+    mockPutSettings.mockRejectedValue(new ApiError(403, { detail: "nope" }));
+    render(<SettingsPanel />);
+    await openPanel();
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole("switch", { name: /time warp/i }));
+    });
+
+    expect(screen.getByRole("alert")).toHaveTextContent(/not allowed/i);
+    expect(screen.getByRole("switch", { name: /time warp/i })).toHaveAttribute(
+      "aria-checked",
+      "false",
+    );
+  });
+
+  it("Load sample tape calls the API, closes the panel and navigates to the J-card", async () => {
+    mockGetSettings.mockResolvedValue(makeSettings());
+    mockCreateSample.mockResolvedValue({ id: "abc" } as tapesApi.TapeWire);
+    render(<SettingsPanel />);
+    await openPanel();
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Load sample tape" }));
+    });
+
+    expect(mockCreateSample).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId("location")).toHaveTextContent("/tape/abc");
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  it("Load sample tape failure shows an error and keeps the panel open", async () => {
+    mockGetSettings.mockResolvedValue(makeSettings());
+    mockCreateSample.mockRejectedValue(new Error("down"));
+    render(<SettingsPanel />);
+    await openPanel();
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Load sample tape" }));
+    });
+
+    expect(screen.getByRole("alert")).toHaveTextContent(/sample tape/i);
+    expect(screen.getByTestId("location")).toHaveTextContent("/");
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+  });
+});
+
+// ---------------------------------------------------------------------------
 // Layout integration: DemoModeBadge appears in the header when demo is on
 // ---------------------------------------------------------------------------
 import App from "../src/App";
 
 describe("Layout with Settings — Req 12.2 header badge", () => {
+  // App brings its own BrowserRouter
+  const render = rtlRender;
   beforeEach(() => {
     vi.clearAllMocks();
     // Layout calls getSettings on mount; stub it so tests don't hit the network.

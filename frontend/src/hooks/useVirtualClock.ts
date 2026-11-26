@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { getSettings, type SettingsWire } from "../api/tapes";
 import { TIME_SCALE_REAL, virtualNow as clockVirtualNow, type Clock } from "../domain/clock";
 
+export const SETTINGS_CHANGED_EVENT = "cursed-cassette:settings-changed";
 export const TICK_MS_REAL = 1000;
 export const TICK_MS_WARP = 250;
 
@@ -52,6 +53,13 @@ export function useVirtualClock(): VirtualClock {
     return () => {
       mounted.current = false;
     };
+  }, [refresh]);
+
+  // Re-load when the Settings panel changes demo mode or time warp.
+  useEffect(() => {
+    const onChanged = () => void refresh();
+    window.addEventListener(SETTINGS_CHANGED_EVENT, onChanged);
+    return () => window.removeEventListener(SETTINGS_CHANGED_EVENT, onChanged);
   }, [refresh]);
 
   const scale = state?.clock.scale ?? TIME_SCALE_REAL;

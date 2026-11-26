@@ -6,7 +6,7 @@ import { getSettings } from "../../api/tapes";
 import CassettePlayer from "../CassettePlayer";
 import JCard from "../JCard";
 import Recorder from "../Recorder";
-import SettingsPanel, { DemoModeBadge } from "../Settings";
+import SettingsPanel, { DemoModeBadge, TimeWarpBadge } from "../Settings";
 import TapeShelf from "../TapeShelf";
 
 /** Route links with aria-labels; active state shown by colour, not motion alone. */
@@ -50,12 +50,16 @@ function PageShell({ children }: { children: ReactNode }) {
 
 export default function Layout() {
   const [demoMode, setDemoMode] = useState(false);
+  const [timeWarp, setTimeWarp] = useState(false);
 
   // Req 12.2: load settings on mount so the Demo mode badge shows immediately
   // if demo_mode is already on (not just after the user opens the panel).
   useEffect(() => {
     getSettings()
-      .then((s) => setDemoMode(s.demo_mode))
+      .then((s) => {
+        setDemoMode(s.demo_mode);
+        setTimeWarp(s.time_warp_enabled);
+      })
       .catch(() => {
         // Network failure on startup — treat demo mode as off, no error shown
       });
@@ -78,10 +82,11 @@ export default function Layout() {
             </Link>
             {/* Req 12.2: show "Demo mode" text label while demo is on */}
             {demoMode && <DemoModeBadge />}
+            {timeWarp && <TimeWarpBadge />}
           </div>
           <div className="flex items-center gap-2">
             <NavLinks />
-            <SettingsPanel onDemoModeChange={setDemoMode} />
+            <SettingsPanel onDemoModeChange={setDemoMode} onTimeWarpChange={setTimeWarp} />
           </div>
         </div>
       </header>
