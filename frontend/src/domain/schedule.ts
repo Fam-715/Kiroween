@@ -194,6 +194,9 @@ export function validateTape(
       message: `Length must be one of ${TAPE_LENGTHS.join(", ")}.`,
     });
   }
+  if (![...tape.sideA, ...tape.sideB].some((i) => i.kind === "track")) {
+    out.push({ rule: "no_tracks", side: null, message: "Add at least one track." });
+  }
   out.push(
     ...validateSide(tape.sideA, demoMode, unchangedIds, tape.length, "A"),
     ...validateSide(tape.sideB, demoMode, unchangedIds, tape.length, "B"),
