@@ -25,12 +25,26 @@ and the tape is restored. Forget it and the tape warps, hisses and haunts your s
 
 No sign-up needed. Open the app and start recording.
 
-## Try it quickly (for judges)
-In **Settings**:
-- **Load sample tape**: creates a tape with tracks that are Mint, due, Warped and Haunted.
-- **Demo mode**: allows tracks as short as 1 minute, so you can reach REC fast.
-- **Demo time warp**: makes 1 day pass every minute, so you can watch tapes decay. Off by
-  default and clearly labelled.
+## Live demo
+**https://kiroween-liart.vercel.app/**
+
+The backend runs on Render's free plan and sleeps after 15 minutes without visitors. If the
+first load seems stuck, wait up to a minute and refresh. Use Chrome or Edge for voice recall;
+other browsers fall back to typing.
+
+## Try it in 2 minutes (for judges)
+1. Open the live demo and click the **⚙ Settings** button.
+2. Click **Load sample tape**. It creates "Sample: Biology Basics" with four tracks that are
+   Mint, Worn (due), Warped and Haunted.
+3. Turn on **Demo time warp** (1 day passes every minute, labelled "TIME WARP ON"). Watch
+   the strengths drop and the tape's condition change.
+4. Open the **Haunted** track (DNA replication) and recall it: say or type "helicase,
+   polymerase, primer, leading strand, Okazaki fragments". It jumps back to Mint, and its
+   next review moves further out.
+5. To try the full loop, turn on **Demo mode** (tracks as short as 1 minute), record your
+   own tape, press PLAY, and press REC when the track ends.
+
+All demo helpers are off by default and clearly labelled.
 
 ## Privacy
 Your voice recordings stay in your browser (IndexedDB). Only the recall text is sent to the
@@ -38,8 +52,12 @@ server to be scored, and it is not stored. Your browser's speech recognition may
 to its vendor's service (Chrome and Edge). If your browser does not support it, you can
 type your recall instead.
 
-## Live demo
-_Coming soon._
+## Built with
+- **Frontend:** React 18, TypeScript, Vite, Tailwind CSS, Framer Motion, Web Audio API,
+  MediaRecorder, Web Speech API, IndexedDB. Tests: Vitest, React Testing Library, fast-check.
+- **Backend:** Python 3.12, FastAPI, SQLModel, SQLite, uv. Tests: pytest, Hypothesis.
+- **Hosting:** Vercel (frontend), Render (backend).
+- **Built in:** [Kiro](https://kiro.dev), with spec-driven development.
 
 ## Running locally
 
@@ -82,8 +100,19 @@ a pause can take about 50 seconds.
 work on direct visits and page reloads.
 
 ## How we used Kiro
-See [`.kiro/`](.kiro) for our steering docs, specs and hooks, and
-[`docs/kiro-playbook.md`](docs/kiro-playbook.md) for our workflow.
+The whole app was built in Kiro by a team of three students. Everything Kiro used is in
+[`.kiro/`](.kiro), and our running log of what worked and what didn't is in
+[`docs/kiro-playbook.md`](docs/kiro-playbook.md) and [`docs/kiro-log/`](docs/kiro-log).
+
+| Kiro feature | Where | How we used it |
+|---|---|---|
+| **Spec-driven development** | [`.kiro/specs/mixtape-core/`](.kiro/specs/mixtape-core) | 15 requirements → design → task list. Every feature was built with **Start task** from the spec, one branch and one pull request per task. When we changed a rule (for example, a failed recall now floors at Warped instead of killing the track), we changed the requirement first and let Kiro update the design, code and tests together. |
+| **Spec review** | requirements.md, design.md | Before writing code, we asked Kiro for a read-only consistency check of requirements, design and tasks. It found 7 real issues, including a double penalty from a repeated "stop" event. |
+| **Steering** | [`.kiro/steering/`](.kiro/steering) | `product.md`, `tech.md` and `structure.md` are always included, so Kiro knows the product and vocabulary (tape, side, track, interlude). `design-system.md` loads only for frontend files (`fileMatch`). We added rules when Kiro went wrong, such as "edit files with Kiro's file tools, not shell scripts". |
+| **Agent hooks** | [`.kiro/hooks/spec-coverage-check.json`](.kiro/hooks/spec-coverage-check.json) | A read-only hook runs whenever `requirements.md` or `design.md` is saved and reports requirements that no task covers. It caught a real gap: the rule that time warp must not speed up the focus timer had no task. |
+| **Property-based testing** | `backend/tests/`, `frontend/tests/` | Every requirement has a property statement. Kiro wrote Hypothesis and fast-check tests for them: strength stays between 0 and 100 and never rises on its own, tapes always fit their side, duplicate network events apply only once, and the frontend maths matches the backend. |
+| **Custom agent** | [`.kiro/agents/pbt-reviewer.md`](.kiro/agents/pbt-reviewer.md) | A read-only reviewer that compares our code and tests with the spec's properties and lists missing property tests. |
+| **MCP** | [`.kiro/settings/mcp.json`](.kiro/settings/mcp.json) | The fetch MCP server let Kiro check our browser API research (Web Speech, MediaRecorder, IndexedDB) against MDN. |
 
 ## License
 [MIT](LICENSE)
