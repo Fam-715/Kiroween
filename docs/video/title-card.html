@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cursed Cassette – title card</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=Special+Elite&family=Creepster&display=swap" rel="stylesheet">
+<style>
+  /* Open this file in Chrome or Edge, press F11 for full screen, then record it with
+     Win + Alt + R for about 6 seconds. Press the R key to restart the animation. */
+  :root {
+    --void: #0E0C10; --plum-950: #1A1220; --plum-900: #241A2E; --plum-800: #2F2440;
+    --plastic: #EDE6D6; --plastic-300: #D9CFBA; --orange: #E8722C; --orange-bright: #F5935C;
+    --teal-bright: #5FBDBD; --lcd: #7DF07D; --haunted: #9B6BD6; --ink: #F2EAD8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    background: radial-gradient(ellipse at center, var(--plum-900) 0%, var(--plum-950) 55%, var(--void) 100%);
+    color: var(--ink); overflow: hidden;
+    display: grid; place-items: center; font-family: 'Special Elite', 'Courier New', monospace;
+  }
+  .stage { width: min(100vw, 177.78vh); aspect-ratio: 16 / 9; position: relative;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3.2vh; }
+  .noise { position: absolute; inset: 0; pointer-events: none; opacity: .06;
+    background-image: repeating-linear-gradient(0deg, #fff 0 1px, transparent 1px 3px);
+    animation: scan 6s linear infinite; }
+  @keyframes scan { to { background-position: 0 300px; } }
+
+  .cassette { width: 46%; opacity: 0; animation: rise 1.4s .2s ease-out forwards;
+    filter: drop-shadow(0 0 2.2vw rgba(155,107,214,.55)); }
+  .reel { transform-origin: center; transform-box: fill-box; animation: spin 2.4s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes rise { from { opacity: 0; transform: translateY(3vh) scale(.96); } to { opacity: 1; transform: none; } }
+
+  h1 { font-family: 'Creepster', cursive; font-weight: 400; color: var(--orange-bright);
+    font-size: 8.4vw; letter-spacing: .04em; line-height: 1; opacity: 0;
+    text-shadow: 0 0 1.4vw rgba(232,114,44,.45);
+    animation: fadein 1s 1s ease-out forwards, flicker 5s 2.2s infinite; }
+  .sub { font-size: 2.15vw; color: var(--plastic); opacity: 0; animation: fadein 1s 1.8s ease-out forwards; }
+  .tag { font-family: 'VT323', monospace; font-size: 1.9vw; color: var(--lcd); letter-spacing: .12em;
+    opacity: 0; animation: fadein 1s 2.6s ease-out forwards; }
+  @keyframes fadein { to { opacity: 1; } }
+  @keyframes flicker { 0%, 92%, 100% { opacity: 1; } 93% { opacity: .35; } 95% { opacity: .9; } 96% { opacity: .5; } }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; animation-delay: 0s !important; }
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="noise"></div>
+  <svg class="cassette" viewBox="0 0 400 250" role="img" aria-label="A cassette tape">
+    <rect x="4" y="4" width="392" height="242" rx="16" fill="#EDE6D6" stroke="#B8AC93" stroke-width="4"/>
+    <rect x="28" y="22" width="344" height="92" rx="6" fill="#E8722C"/>
+    <rect x="28" y="22" width="344" height="24" rx="6" fill="#F5935C"/>
+    <text x="200" y="90" text-anchor="middle" font-family="Special Elite, monospace" font-size="26" fill="#1A1220">SIDE A · STUDY MIX</text>
+    <rect x="72" y="128" width="256" height="78" rx="38" fill="#1A1220"/>
+    <rect x="160" y="150" width="80" height="34" rx="4" fill="#2F2440"/>
+    <g class="reel"><circle cx="120" cy="167" r="28" fill="#D9CFBA"/>
+      <circle cx="120" cy="167" r="9" fill="#1A1220"/>
+      <rect x="117" y="140" width="6" height="14" fill="#1A1220"/><rect x="117" y="180" width="6" height="14" fill="#1A1220"/>
+      <rect x="93" y="164" width="14" height="6" fill="#1A1220"/><rect x="133" y="164" width="14" height="6" fill="#1A1220"/></g>
+    <g class="reel"><circle cx="280" cy="167" r="28" fill="#D9CFBA"/>
+      <circle cx="280" cy="167" r="9" fill="#1A1220"/>
+      <rect x="277" y="140" width="6" height="14" fill="#1A1220"/><rect x="277" y="180" width="6" height="14" fill="#1A1220"/>
+      <rect x="253" y="164" width="14" height="6" fill="#1A1220"/><rect x="293" y="164" width="14" height="6" fill="#1A1220"/></g>
+    <polygon points="110,246 130,214 270,214 290,246" fill="#D9CFBA"/>
+  </svg>
+  <h1>Cursed Cassette</h1>
+  <p class="sub">Study tapes that decay as you forget.</p>
+  <p class="tag">KIROWEEN 2026 · RESURRECTION</p>
+</div>
+<script>
+  // Press R to replay the intro animation before recording.
+  addEventListener('keydown', e => { if (e.key === 'r' || e.key === 'R') location.reload(); });
+</script>
+</body>
+</html>

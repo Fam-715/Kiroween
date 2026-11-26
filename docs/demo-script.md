@@ -2,7 +2,8 @@
 
 **Target length:** 2:50, never over 3:00. Check the current limit on the Kiroween rules page
 before uploading.
-**Upload:** YouTube (Public or Unlisted), then paste the link into Devpost.
+**Upload:** YouTube, set to **Public** (the rules require it), then paste the link into
+Devpost. Step-by-step recording and editing help: [`video/recording-guide.md`](video/recording-guide.md).
 **Narration:** about 330 words (about 2:20 spoken at 140 words a minute, leaving time for pauses). Speak slowly and leave a beat of
 silence after each scene change.
 

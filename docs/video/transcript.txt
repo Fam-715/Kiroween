@@ -1,0 +1,24 @@
+You study for hours, and a week later most of it is gone. Nothing warns you.
+So we brought back the cassette tape, because tapes do two things your notes don't.
+They record. And they decay.
+A study session is a mixtape. Each track is a topic with three to five key terms.
+Interludes are your breaks, and the tape has a fixed length, so you plan honestly.
+Demo mode lets us use one-minute tracks for this video.
+Press play and focus. The sound is generated in your browser: brown noise, rain or lo-fi.
+When a track ends, the cassette asks you to record. You explain the topic from memory,
+out loud, which is one of the best ways to learn.
+We match your words against the key terms. Your voice stays on your device; only the
+score goes to the server.
+Every track follows a forgetting curve. Time warp turns a day into a minute, so you can
+watch it happen. Mint becomes Worn, then Warped, then Haunted.
+Skip a break, and the tape remembers: it decays faster.
+And your own recording decays with it. The more you forget, the more it warps.
+Review it, and the tape heals. Each good recall makes the memory last longer, so the next
+review comes later. That's spaced repetition, hidden inside a cassette.
+We built it in Kiro with spec-driven development. Fifteen requirements became a design and
+a task list, and every task ran from the spec.
+Steering keeps Kiro on our product and style. Property-based tests check the maths:
+strength always stays between zero and a hundred, and memory never recovers on its own.
+A hook re-checks that every requirement has a task whenever the spec changes, and a
+read-only custom agent reviews our test coverage.
+Cursed Cassette. Record what you learned. Forget it, and the tape remembers.
