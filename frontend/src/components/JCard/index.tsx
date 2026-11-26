@@ -5,8 +5,19 @@ import { predictFromWire, predictStrength, relativeReview } from "../../domain/s
 import { condition as conditionOf } from "../../domain/strength";
 import { useVirtualClock } from "../../hooks/useVirtualClock";
 import ConditionText from "../ConditionText";
+import RecallPanel from "../RecallPanel";
 
-function TrackRow({ item, tape, nowMs }: { item: TapeItemWire; tape: TapeWire; nowMs: number }) {
+function TrackRow({
+  item,
+  tape,
+  nowMs,
+  onRec,
+}: {
+  item: TapeItemWire;
+  tape: TapeWire;
+  nowMs: number;
+  onRec: (item: TapeItemWire) => void;
+}) {
   const label = item.name ?? "Untitled track";
   const m = item.memory;
   let detail: React.ReactNode;
@@ -22,6 +33,9 @@ function TrackRow({ item, tape, nowMs }: { item: TapeItemWire; tape: TapeWire; n
         <span className="font-lcd text-lcd-green">{strength}</span>{" "}
         <ConditionText condition={conditionOf(strength)} />
         {isDue && <span className="ml-2 font-type text-label-orangeBright">due</span>}
+        <span className="ml-2 text-plastic-300">
+          Stability {m.stability_days.toFixed(1)} d
+        </span>
         {next !== null && (
           <span className="ml-2 text-plastic-300">Next review: {relativeReview(next, nowMs)}</span>
         )}
@@ -32,12 +46,32 @@ function TrackRow({ item, tape, nowMs }: { item: TapeItemWire; tape: TapeWire; n
     <li className="flex flex-wrap items-baseline gap-2 py-1" data-testid="jcard-track">
       <span className="font-hand text-lg text-ink">{label}</span>
       <span className="text-sm">{detail}</span>
-      {/* Tasks 10-12 add the REC button (recall) and the play-recording button here. */}
+      <button
+        type="button"
+        aria-label={`Record recall for ${label}`}
+        onClick={() => onRec(item)}
+        className="rounded-sm border border-danger px-3 py-1 font-type text-sm text-ink hover:bg-plum-800"
+      >
+        ● REC
+      </button>
+      {/* Task 12 adds the play-recording button here. */}
     </li>
   );
 }
 
-function Side({ name, items, tape, nowMs }: { name: string; items: TapeItemWire[]; tape: TapeWire; nowMs: number }) {
+function Side({
+  name,
+  items,
+  tape,
+  nowMs,
+  onRec,
+}: {
+  name: string;
+  items: TapeItemWire[];
+  tape: TapeWire;
+  nowMs: number;
+  onRec: (item: TapeItemWire) => void;
+}) {
   const tracks = items.filter((i) => i.kind === "track");
   return (
     <section aria-label={`${name} tracks`} className="mt-4">
@@ -47,7 +81,7 @@ function Side({ name, items, tape, nowMs }: { name: string; items: TapeItemWire[
       ) : (
         <ul>
           {tracks.map((t) => (
-            <TrackRow key={t.id} item={t} tape={tape} nowMs={nowMs} />
+            <TrackRow key={t.id} item={t} tape={tape} nowMs={nowMs} onRec={onRec} />
           ))}
         </ul>
       )}
@@ -63,6 +97,7 @@ export default function JCard() {
   const [failed, setFailed] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const [deleteFailed, setDeleteFailed] = useState(false);
+  const [recallItem, setRecallItem] = useState<TapeItemWire | null>(null);
 
   useEffect(() => {
     if (!tapeId) return;
@@ -79,6 +114,35 @@ export default function JCard() {
       cancelled = true;
     };
   }, [tapeId]);
+
+  // R = REC: opens the recall panel for the first due track, else the first track.
+  useEffect(() => {
+    if (!tape) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "r" && e.key !== "R") return;
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+      const el = e.target as HTMLElement | null;
+      if (el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.isContentEditable)) return;
+      const tracks = [...tape.side_a, ...tape.side_b].filter((i) => i.kind === "track");
+      const pick = tracks.find((i) => i.memory?.due) ?? tracks[0];
+      if (pick) {
+        e.preventDefault();
+        setRecallItem(pick);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [tape]);
+
+  // The API response replaces any prediction: reload the tape after a scored recall.
+  function reloadTape() {
+    if (!tapeId) return;
+    getTape(tapeId)
+      .then(setTape)
+      .catch(() => {
+        // keep the current view; the panel already shows the API values
+      });
+  }
 
   async function confirmDelete() {
     if (!tape) return;
@@ -136,8 +200,17 @@ export default function JCard() {
         <div><dt className="text-plastic-300">Tracks skipped</dt><dd className="font-lcd text-lg text-lcd-green">{s.tracks_skipped}</dd></div>
       </dl>
 
-      <Side name="Side A" items={tape.side_a} tape={tape} nowMs={nowMs} />
-      <Side name="Side B" items={tape.side_b} tape={tape} nowMs={nowMs} />
+      <Side name="Side A" items={tape.side_a} tape={tape} nowMs={nowMs} onRec={setRecallItem} />
+      <Side name="Side B" items={tape.side_b} tape={tape} nowMs={nowMs} onRec={setRecallItem} />
+
+      {recallItem && (
+        <RecallPanel
+          key={recallItem.id}
+          track={{ id: recallItem.id, name: recallItem.name }}
+          onResult={reloadTape}
+          onClose={() => setRecallItem(null)}
+        />
+      )}
 
       <div className="mt-6 flex flex-wrap gap-3">
         <Link
