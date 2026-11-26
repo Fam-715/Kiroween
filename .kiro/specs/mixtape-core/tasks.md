@@ -134,7 +134,7 @@ scoring, stability and strength, and applies each event once (idempotent on
   - _Requirements: 2.9_
 
 - [ ] 9. Player
-- [ ] 9.1 `useTapePlayer` state machine with timestamp-based countdown and reload resume
+- [x] 9.1 `useTapePlayer` state machine with timestamp-based countdown and reload resume
   - Property tests: countdown never negative or above the item duration; every item ends in
     exactly one state for any button sequence.
   - _Requirements: 3.1–3.9, 3.11, 3.12, 12.11_

@@ -212,7 +212,6 @@
         "timestamp": 1795598227396
       }
     ],
-
     "7.2 `domain/strength.ts`, `domain/clock.ts` (mirror the backend) and the": [
       {
         "executionId": "a7edb569-731d-4af4-9044-66b32e78b14b",
@@ -264,7 +263,18 @@
         "executionId": "ae9bea45-6ec5-4f52-bc71-a0abdb1c42f7",
         "chatSessionId": "sess_47ea7682-aed3-4350-9db3-2028c0794b9a",
         "timestamp": 1795625501993
-
+      }
+    ],
+    "9.1 `useTapePlayer` state machine with timestamp-based countdown and reload resume": [
+      {
+        "executionId": "15053a2e-8f67-45cd-a836-3eda337d86e5",
+        "chatSessionId": "sess_aae022dc-23df-48c5-8530-66edbf7a4f09",
+        "timestamp": 1795679831347
+      },
+      {
+        "executionId": "15053a2e-8f67-45cd-a836-3eda337d86e5",
+        "chatSessionId": "sess_aae022dc-23df-48c5-8530-66edbf7a4f09",
+        "timestamp": 1795680363584
       }
     ]
   }
