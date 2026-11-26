@@ -212,7 +212,6 @@
         "timestamp": 1795598227396
       }
     ],
-
     "7.2 `domain/strength.ts`, `domain/clock.ts` (mirror the backend) and the": [
       {
         "executionId": "a7edb569-731d-4af4-9044-66b32e78b14b",
@@ -264,7 +263,28 @@
         "executionId": "ae9bea45-6ec5-4f52-bc71-a0abdb1c42f7",
         "chatSessionId": "sess_47ea7682-aed3-4350-9db3-2028c0794b9a",
         "timestamp": 1795625501993
-
+      }
+    ],
+    "15. Haunted shelf, J-card and restore": [
+      {
+        "executionId": "cab2cd00-15ef-4c9d-aef4-3aeb9c5a3cb6",
+        "chatSessionId": "sess_03a8d498-b6a3-4b3e-ad82-8899445a5812",
+        "timestamp": 1795681596915
+      },
+      {
+        "executionId": "cab2cd00-15ef-4c9d-aef4-3aeb9c5a3cb6",
+        "chatSessionId": "sess_03a8d498-b6a3-4b3e-ad82-8899445a5812",
+        "timestamp": 1795682793020
+      },
+      {
+        "executionId": "63bce8e5-1b49-482c-a4a6-0bd9fc21a00b",
+        "chatSessionId": "sess_03a8d498-b6a3-4b3e-ad82-8899445a5812",
+        "timestamp": 1795683548128
+      },
+      {
+        "executionId": "63bce8e5-1b49-482c-a4a6-0bd9fc21a00b",
+        "chatSessionId": "sess_03a8d498-b6a3-4b3e-ad82-8899445a5812",
+        "timestamp": 1795684004784
       }
     ]
   }
