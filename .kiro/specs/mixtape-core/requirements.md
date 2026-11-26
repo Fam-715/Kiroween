@@ -93,6 +93,9 @@ study session has a clear plan and a fixed length.
    equal to side capacity minus the sum of that side's item durations.
 8. WHEN a saved tape is edited and a track's key terms change THEN the system SHALL reset
    that track to unrecorded. A track whose key terms did not change SHALL keep its memory.
+9. A tape must contain at least one track. IF both sides contain no tracks THEN the system
+   SHALL reject the save (422 from the API, "Add at least one track" in the Recorder).
+   Interludes alone do not count.
 
 _Property (PBT): for any sequence of add attempts, every accepted side has total duration
 <= capacity, the remaining counter equals capacity minus total, and every saved tape has

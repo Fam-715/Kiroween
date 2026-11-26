@@ -127,6 +127,11 @@ scoring, stability and strength, and applies each event once (idempotent on
 - [x] 8.2 Demo mode toggle: `Settings` panel with the "Demo mode" toggle (labelled as text while on)
   - The time warp toggle and "Load sample tape" button are added in task 14.3.
   - _Requirements: 12.1, 12.2, 12.3_
+- [x] 8.3 Require at least one track, and show Recorder errors only after interaction
+  - `no_tracks` rule in backend `validate_tape` (422) and frontend `validateTape`; Recorder shows
+    "Add at least one track" and blocks Save. Errors stay hidden until the field is edited or
+    Save has been pressed once. Backend and Recorder tests added.
+  - _Requirements: 2.9_
 
 - [ ] 9. Player
 - [ ] 9.1 `useTapePlayer` state machine with timestamp-based countdown and reload resume

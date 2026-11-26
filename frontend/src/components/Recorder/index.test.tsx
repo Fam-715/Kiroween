@@ -111,6 +111,53 @@ afterEach(() => {
   vi.clearAllMocks();
 });
 
+describe("Recorder validation display (task 8.3)", () => {
+  it("shows no validation errors on load", async () => {
+    await renderReady();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("General rule errors")).not.toBeInTheDocument();
+    expect(screen.queryByText("Add at least one track.")).not.toBeInTheDocument();
+  });
+
+  it("shows the title error only after the user types in the title field", async () => {
+    await renderReady();
+    expect(screen.queryByText(/Title must be/)).not.toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText("Tape title"), { target: { value: "x" } });
+    fireEvent.change(screen.getByLabelText("Tape title"), { target: { value: "" } });
+    expect(await screen.findByText(/Title must be 1 to 60 characters/)).toBeInTheDocument();
+  });
+
+  it("shows a side's errors only after that side is edited", async () => {
+    await renderReady();
+    addTrack("A");
+    expect(await screen.findByText(/Track 1 needs 3 to 5 key terms/)).toBeInTheDocument();
+    expect(screen.getByLabelText("Rule errors on side A")).toBeInTheDocument();
+    expect(screen.queryByLabelText("Rule errors on side B")).not.toBeInTheDocument();
+  });
+
+  it("blocks Save with 'Add at least one track' when the tape has no tracks", async () => {
+    const fetchMock = installFetch();
+    renderRecorder();
+    await screen.findByRole("button", { name: "Save tape" });
+    fireEvent.change(screen.getByLabelText("Tape title"), { target: { value: "Empty" } });
+    expect(screen.queryByText("Add at least one track.")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Save tape" }));
+    expect(await screen.findByText("Add at least one track.")).toBeInTheDocument();
+    const posts = fetchMock.mock.calls.filter(([, init]) => init?.method === "POST");
+    expect(posts).toHaveLength(0);
+    expect(screen.queryByText(/Tape saved/)).not.toBeInTheDocument();
+  });
+
+  it("does not count interludes as tracks", async () => {
+    await renderReady();
+    fireEvent.change(screen.getByLabelText("Tape title"), { target: { value: "Breaks" } });
+    addInterlude("A");
+    fireEvent.click(screen.getByRole("button", { name: "Save tape" }));
+    expect(await screen.findByText("Add at least one track.")).toBeInTheDocument();
+  });
+});
+
 describe("Recorder (task 8.1)", () => {
   it("rejects an item that would exceed side capacity and shows the remaining minutes", async () => {
     await renderReady();

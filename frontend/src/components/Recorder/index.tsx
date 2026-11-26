@@ -108,6 +108,8 @@ export default function Recorder() {
   const [saving, setSaving] = useState(false);
   const [attemptedSave, setAttemptedSave] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [titleTouched, setTitleTouched] = useState(false);
+  const [touched, setTouched] = useState<Record<SideId, boolean>>({ A: false, B: false });
 
   /** Minutes of the loaded (server) items, for the Demo-mode unchanged-id exemption. */
   const originalMinutes = useRef<Record<string, number>>({});
@@ -186,11 +188,22 @@ export default function Recorder() {
     [title, length, sideA, sideB, demoOn, unchangedIds],
   );
 
-  const allViolations = [...clientViolations, ...serverViolations];
+  // Client-side errors stay hidden until the user has touched the related field or pressed
+  // Save once, so the layout does not jump on load. Server errors always show.
+  const anySideTouched = touched.A || touched.B;
+  const visibleClient = clientViolations.filter((v) => {
+    if (attemptedSave) return true;
+    if (v.side === "A" || v.side === "B") return touched[v.side];
+    if (v.rule === "title") return titleTouched;
+    if (v.rule === "no_tracks") return anySideTouched;
+    return true;
+  });
+  const allViolations = [...visibleClient, ...serverViolations];
   const violationsFor = (side: SideId) => allViolations.filter((v) => v.side === side);
   const generalViolations = allViolations.filter((v) => v.side === null);
 
   const clearAddAlert = (side: SideId) => {
+    setTouched((t) => (t[side] ? t : { ...t, [side]: true }));
     if (addAlert[side] !== null) setAddAlert({ ...addAlert, [side]: null });
   };
 
@@ -565,7 +578,10 @@ export default function Recorder() {
               aria-label="Tape title"
               value={title}
               maxLength={80}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={(e) => {
+                setTitleTouched(true);
+                setTitle(e.target.value);
+              }}
               placeholder="e.g. Cell Biology Midterm"
             />
           </label>

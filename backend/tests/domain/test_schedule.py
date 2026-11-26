@@ -91,10 +91,26 @@ def test_capacities():
     assert min_track_minutes(True) == 1
 
 
-# **Validates: Requirements 2.2, 2.3, 2.4, 2.5**
+def has_track(tape: Tape) -> bool:
+    return any(i.kind == "track" for i in (*tape.side_a, *tape.side_b))
+
+
+# **Validates: Requirements 2.2, 2.3, 2.4, 2.5, 2.9**
 @given(valid_tapes(), st.booleans())
 def test_random_valid_tapes_pass(tape, demo):
-    assert validate_tape(tape, demo) == []
+    # A tape without any track is invalid (2.9); every other generated tape is valid.
+    expected = [] if has_track(tape) else ["no_tracks"]
+    assert [v.rule for v in validate_tape(tape, demo)] == expected
+
+
+# **Validates: Requirements 2.9**
+@given(lengths, st.lists(interludes, max_size=3), st.lists(interludes, max_size=3), st.booleans())
+def test_tape_without_tracks_is_rejected(length, side_a, side_b, demo):
+    violations = validate_tape(Tape("T", length, side_a, side_b), demo)
+    no_tracks = [v for v in violations if v.rule == "no_tracks"]
+    assert len(no_tracks) == 1
+    assert no_tracks[0].side is None
+    assert no_tracks[0].message == "Add at least one track."
 
 
 # **Validates: Requirements 2.4**
