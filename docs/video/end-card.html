@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cursed Cassette – end card</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=Special+Elite&family=Creepster&display=swap" rel="stylesheet">
+<style>
+  /* Open in Chrome or Edge, press F11, record about 8 seconds with Win + Alt + R.
+     Edit the team names in the TEAM list near the bottom of this file first. */
+  :root {
+    --void: #0E0C10; --plum-950: #1A1220; --plum-900: #241A2E; --plum-800: #2F2440;
+    --plastic: #EDE6D6; --orange-bright: #F5935C; --teal-bright: #5FBDBD;
+    --lcd: #7DF07D; --haunted: #9B6BD6; --ink: #F2EAD8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    background: radial-gradient(ellipse at center, var(--plum-900) 0%, var(--plum-950) 55%, var(--void) 100%);
+    color: var(--ink); overflow: hidden; display: grid; place-items: center;
+    font-family: 'Special Elite', 'Courier New', monospace;
+  }
+  .stage { width: min(100vw, 177.78vh); aspect-ratio: 16 / 9; position: relative;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3vh; text-align: center; }
+  .noise { position: absolute; inset: 0; pointer-events: none; opacity: .06;
+    background-image: repeating-linear-gradient(0deg, #fff 0 1px, transparent 1px 3px); }
+  h1 { font-family: 'Creepster', cursive; font-weight: 400; font-size: 6.4vw; color: var(--orange-bright);
+    text-shadow: 0 0 1.4vw rgba(232,114,44,.45); opacity: 0; animation: fadein .9s .2s forwards; }
+  .line { font-size: 2.3vw; color: var(--plastic); opacity: 0; animation: fadein .9s .9s forwards; }
+  .line em { color: var(--haunted); font-style: normal; text-shadow: 0 0 1vw rgba(155,107,214,.7); }
+  .links { margin-top: 2vh; display: grid; gap: 1.4vh; opacity: 0; animation: fadein .9s 1.7s forwards; }
+  .links p { font-family: 'VT323', monospace; font-size: 2.6vw; letter-spacing: .04em; }
+  .links .k { color: var(--teal-bright); margin-right: 1vw; }
+  .links .v { color: var(--lcd); }
+  .team { margin-top: 3vh; font-size: 1.7vw; color: var(--plastic); opacity: 0; animation: fadein .9s 2.5s forwards; }
+  .team span { color: var(--orange-bright); }
+  .built { font-family: 'VT323', monospace; font-size: 1.6vw; color: var(--teal-bright); letter-spacing: .14em;
+    opacity: 0; animation: fadein .9s 3.1s forwards; }
+  @keyframes fadein { to { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; opacity: 1 !important; } }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="noise"></div>
+  <h1>Cursed Cassette</h1>
+  <p class="line">Record what you learned. Forget it, and <em>the tape remembers…</em></p>
+  <div class="links">
+    <p><span class="k">TRY IT</span><span class="v">kiroween-liart.vercel.app</span></p>
+    <p><span class="k">CODE</span><span class="v">github.com/Fam-715/Kiroween</span></p>
+  </div>
+  <p class="team" id="team"></p>
+  <p class="built">BUILT WITH KIRO · KIROWEEN 2026 · RESURRECTION</p>
+</div>
+<script>
+  // EDIT THESE: your team's names as you want them shown in the video.
+  const TEAM = ["Team member 1", "Team member 2", "Team member 3"];
+  document.getElementById('team').innerHTML =
+    'A team of three students: ' + TEAM.map(n => '<span>' + n.replace(/[<>&]/g, '') + '</span>').join(' · ');
+  addEventListener('keydown', e => { if (e.key === 'r' || e.key === 'R') location.reload(); });
+</script>
+</body>
+</html>
