@@ -196,10 +196,14 @@ and the track's strength, then skip a break and watch stability drop in the resp
 - [ ] 14.3 Frontend `Settings`: add the "Demo time warp" toggle (hidden when not allowed, with
   a "TIME WARP ON" label) and the "Load sample tape" button to the panel from task 8.2
   - _Requirements: 12.5, 12.8, 12.9_
-- [ ] 15. Haunted shelf, J-card and restore
+- [x] 15. Haunted shelf, J-card and restore
   - Shelf spines with condition, "N due" labels and haunted look, ghost rendering for
     Forgotten tapes, J-card with stats and per-track strength and next review, REC and PLAY
     recording buttons, delete with confirmation (also deletes recordings).
+  - Status: shelf, J-card, route `/tape/:tapeId` and delete confirmation are done. The REC and
+    play-recording buttons on the J-card are NOT built yet: tasks 10-12 add them (marked by a
+    comment in `components/JCard`). Task 11 must also delete the tape's recordings from
+    IndexedDB at the delete call in the J-card.
   - Property test: total focus minutes equals the sum of completed track durations; the due
     count equals tracks with unrounded strength ≤ 70.
   - _Requirements: 6.10, 6.11, 8.1–8.7, 11.1–11.6_

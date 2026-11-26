@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Link, NavLink, Route, Routes } from "react-router-dom";
 import { getSettings } from "../../api/tapes";
 import CassettePlayer from "../CassettePlayer";
+import JCard from "../JCard";
 import Recorder from "../Recorder";
 import SettingsPanel, { DemoModeBadge } from "../Settings";
 import TapeShelf from "../TapeShelf";
@@ -91,6 +92,7 @@ export default function Layout() {
         <Routes>
           <Route path="/" element={<PageShell><TapeShelf /></PageShell>} />
           <Route path="/record" element={<PageShell><Recorder /></PageShell>} />
+          <Route path="/tape/:tapeId" element={<PageShell><JCard /></PageShell>} />
           <Route path="/play/:tapeId" element={<PageShell><CassettePlayer /></PageShell>} />
           <Route path="*" element={<PageShell><TapeShelf /></PageShell>} />
         </Routes>

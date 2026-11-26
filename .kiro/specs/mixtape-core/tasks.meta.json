@@ -265,6 +265,28 @@
         "timestamp": 1795625501993
       }
     ],
+    "15. Haunted shelf, J-card and restore": [
+      {
+        "executionId": "cab2cd00-15ef-4c9d-aef4-3aeb9c5a3cb6",
+        "chatSessionId": "sess_03a8d498-b6a3-4b3e-ad82-8899445a5812",
+        "timestamp": 1795681596915
+      },
+      {
+        "executionId": "cab2cd00-15ef-4c9d-aef4-3aeb9c5a3cb6",
+        "chatSessionId": "sess_03a8d498-b6a3-4b3e-ad82-8899445a5812",
+        "timestamp": 1795682793020
+      },
+      {
+        "executionId": "63bce8e5-1b49-482c-a4a6-0bd9fc21a00b",
+        "chatSessionId": "sess_03a8d498-b6a3-4b3e-ad82-8899445a5812",
+        "timestamp": 1795683548128
+      },
+      {
+        "executionId": "63bce8e5-1b49-482c-a4a6-0bd9fc21a00b",
+        "chatSessionId": "sess_03a8d498-b6a3-4b3e-ad82-8899445a5812",
+        "timestamp": 1795684004784
+      }
+    ],
     "9.1 `useTapePlayer` state machine with timestamp-based countdown and reload resume": [
       {
         "executionId": "15053a2e-8f67-45cd-a836-3eda337d86e5",

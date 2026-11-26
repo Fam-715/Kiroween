@@ -47,6 +47,14 @@ export interface TapeItemWire {
   memory: TrackMemoryWire | null;
 }
 
+/** Liner-note stats; mirrors the backend's TapeStatsOut. */
+export interface TapeStatsWire {
+  sessions: number;
+  focus_minutes: number;
+  tracks_completed: number;
+  tracks_skipped: number;
+}
+
 export interface TapeWire {
   id: string;
   title: string;
@@ -63,6 +71,7 @@ export interface TapeWire {
   due_count: number;
   next_review_at: string | null;
   ghost: boolean;
+  stats: TapeStatsWire;
 }
 
 // --- Settings ----------------------------------------------------------------------
