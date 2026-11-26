@@ -60,6 +60,27 @@ npm run dev
 npm test
 ```
 
+## Deployment
+**Backend on Render** (web service)
+- Root directory: `backend`
+- Build command: `pip install uv && uv sync --frozen --no-dev`
+- Start command: `uv run --no-dev uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+- Environment variables:
+  - `PYTHON_VERSION=3.12.7`
+  - `ALLOW_TIME_WARP=true`
+  - `CORS_ORIGINS=<the Vercel URL>`
+
+The free Render server sleeps after 15 minutes without traffic, so the first request after
+a pause can take about 50 seconds.
+
+**Frontend on Vercel**
+- Root directory: `frontend`
+- Framework preset: Vite
+- Environment variable: `VITE_API_BASE_URL=https://cursed-cassette-api.onrender.com`
+
+`frontend/vercel.json` rewrites every route to `index.html`, so `react-router-dom` routes
+work on direct visits and page reloads.
+
 ## How we used Kiro
 See [`.kiro/`](.kiro) for our steering docs, specs and hooks, and
 [`docs/kiro-playbook.md`](docs/kiro-playbook.md) for our workflow.
