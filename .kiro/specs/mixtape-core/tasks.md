@@ -104,7 +104,7 @@ scoring, stability and strength, and applies each event once (idempotent on
 - [ ] 7. Frontend foundation
 - [x] 7.1 `useListenerId` hook and typed API client that sends `X-Listener-Id`
   - _Requirements: 1.1, 1.2_
-- [ ] 7.2 `domain/strength.ts`, `domain/clock.ts` (mirror the backend) and the
+- [x] 7.2 `domain/strength.ts`, `domain/clock.ts` (mirror the backend) and the
   `useVirtualClock` hook (loads `/api/settings`, tracks the server offset, returns
   `virtualNow()` on a slow tick)
   - fast-check property tests: parity with backend results (shared test vectors), decay is
