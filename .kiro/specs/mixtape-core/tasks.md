@@ -119,12 +119,12 @@ scoring, stability and strength, and applies each event once (idempotent on
 - [x] 7.4 Theme tokens, fonts and base layout (shelf / recorder / player routes)
   - _Requirements: 9.6_
 
-- [ ] 8. Recorder UI and Demo mode toggle
+- [x] 8. Recorder UI and Demo mode toggle
 - [x] 8.1 Recorder UI
   - Side columns, add/reorder/remove items, key terms chips (3–5), live tape-remaining bars,
     inline rule errors, and the Demo mode minimum (1 minute) when enabled.
   - _Requirements: 2.1–2.8_
-- [ ] 8.2 Demo mode toggle: `Settings` panel with the "Demo mode" toggle (labelled as text while on)
+- [x] 8.2 Demo mode toggle: `Settings` panel with the "Demo mode" toggle (labelled as text while on)
   - The time warp toggle and "Load sample tape" button are added in task 14.3.
   - _Requirements: 12.1, 12.2, 12.3_
 
@@ -198,7 +198,7 @@ and the track's strength, then skip a break and watch stability drop in the resp
   - Property test: total focus minutes equals the sum of completed track durations; the due
     count equals tracks with unrounded strength ≤ 70.
   - _Requirements: 6.10, 6.11, 8.1–8.7, 11.1–11.6_
-- [ ] 16. Procedural focus audio
+- [x] 16. Procedural focus audio
   - Brown noise, rain, lo-fi loop; 2 s linear fade on interludes; volume 0–100% and mute;
     start only on PLAY. Improve the simple completion chime from task 9.3 if time allows.
   - _Requirements: 10.1–10.5_
