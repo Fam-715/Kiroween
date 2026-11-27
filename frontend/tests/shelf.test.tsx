@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import * as tapesApi from "../src/api/tapes";
+import * as recordingStore from "../src/audio/recordingStore";
 import JCard from "../src/components/JCard";
 import TapeShelf from "../src/components/TapeShelf";
 
@@ -15,6 +16,13 @@ vi.mock("../src/api/tapes", async (importOriginal) => {
     deleteTape: vi.fn(),
   };
 });
+
+vi.mock("../src/audio/recordingStore", () => ({
+  save: vi.fn(),
+  get: vi.fn(),
+  remove: vi.fn(),
+  removeMany: vi.fn().mockResolvedValue(undefined),
+}));
 
 const NOW = new Date().toISOString();
 const FUTURE = new Date(Date.now() + 3 * 86_400_000 + 3_600_000).toISOString();
@@ -197,6 +205,18 @@ describe("JCard", () => {
     expect(screen.getByRole("alertdialog")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Yes, delete" }));
     await waitFor(() => expect(tapesApi.deleteTape).toHaveBeenCalledWith("t1"));
+    expect(await screen.findByText("Shelf page")).toBeInTheDocument();
+  });
+
+  it("removes the tape's recordings before deleting, and still deletes if IndexedDB fails", async () => {
+    vi.mocked(tapesApi.getTape).mockResolvedValue(tape());
+    vi.mocked(tapesApi.deleteTape).mockResolvedValue(undefined);
+    vi.mocked(recordingStore.removeMany).mockRejectedValueOnce(new Error("idb down"));
+    renderJCard();
+    fireEvent.click(await screen.findByRole("button", { name: "Delete tape" }));
+    fireEvent.click(screen.getByRole("button", { name: "Yes, delete" }));
+    await waitFor(() => expect(tapesApi.deleteTape).toHaveBeenCalledWith("t1"));
+    expect(recordingStore.removeMany).toHaveBeenCalledWith(["one", "two"]);
     expect(await screen.findByText("Shelf page")).toBeInTheDocument();
   });
 });

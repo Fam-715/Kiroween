@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { removeMany } from "../../audio/recordingStore";
 import { deleteTape, getTape, type TapeItemWire, type TapeWire } from "../../api/tapes";
 import { predictFromWire, predictStrength, relativeReview } from "../../domain/shelf";
 import { condition as conditionOf } from "../../domain/strength";
@@ -148,7 +149,11 @@ export default function JCard() {
     if (!tape) return;
     setDeleteFailed(false);
     try {
-      // Task 11 must also remove this tape's recordings from IndexedDB here.
+      try {
+        await removeMany([...tape.side_a, ...tape.side_b].filter((i) => i.kind === "track").map((i) => i.id));
+      } catch {
+        // IndexedDB can fail (private mode, blocked); the tape is still deleted
+      }
       await deleteTape(tape.id);
       navigate("/");
     } catch {

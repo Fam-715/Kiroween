@@ -11,10 +11,12 @@ interface Props {
   onResult?: (result: RecallWire) => void;
   /** Test seam for the recall retry queue. */
   queue?: RetryQueue;
+  /** Called true when voice recording starts and false when it ends. */
+  onRecordingChange?: (recording: boolean) => void;
 }
 
 /** Shown when a track ends. Opens the existing RecallPanel; there is no second recall UI. */
-export default function RecPrompt({ tape, trackId, onResult, queue }: Props) {
+export default function RecPrompt({ tape, trackId, onResult, queue, onRecordingChange }: Props) {
   const [open, setOpen] = useState(false);
   const [dismissed, setDismissed] = useState(false);
 
@@ -38,6 +40,7 @@ export default function RecPrompt({ tape, trackId, onResult, queue }: Props) {
           setDismissed(true);
         }}
         queue={queue}
+        onRecordingChange={onRecordingChange}
       />
     );
   }

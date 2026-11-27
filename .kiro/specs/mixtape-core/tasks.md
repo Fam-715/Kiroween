@@ -165,7 +165,7 @@ and the track's strength, then skip a break and watch stability drop in the resp
 
 ### Phase 2: Voice, decay, demo helpers and shelf (target: days 5–8)
 
-- [ ] 11. Voice recall
+- [x] 11. Voice recall
   - `audio/recordingStore.ts` (IndexedDB), `useRecall` with MediaRecorder, Web Speech
     transcription into an editable box, 90 s auto-stop, under-30 s hint, typing fallback when
     unsupported or denied, the one-time speech service notice, and muting the sound bed while
