@@ -5,6 +5,7 @@ import type { SessionEventBody } from "../src/api/sessions";
 import * as sessionsApi from "../src/api/sessions";
 import type { TapeWire } from "../src/api/tapes";
 import { RetryQueue } from "../src/domain/retryQueue";
+import { useFocusAudio } from "../src/hooks/useFocusAudio";
 import { useFocusSession } from "../src/hooks/useFocusSession";
 
 vi.mock("../src/api/sessions", async (importOriginal) => {
@@ -33,6 +34,13 @@ vi.mock("../src/hooks/useFocusAudio", () => {
   };
   return { useFocusAudio: () => stub };
 });
+
+// The mocked hook returns this same object every render, so tests can flip `playing`.
+const audioStub = useFocusAudio() as unknown as {
+  playing: boolean;
+  start: ReturnType<typeof vi.fn>;
+  fadeTo: ReturnType<typeof vi.fn>;
+};
 
 const start = vi.mocked(sessionsApi.startSession);
 const postEvent = vi.mocked(sessionsApi.postSessionEvent);
@@ -72,6 +80,7 @@ const eventOut = (penalty: sessionsApi.PenaltyWire[] = []) => ({
 beforeEach(() => {
   localStorage.clear();
   vi.clearAllMocks();
+  audioStub.playing = false;
   start.mockResolvedValue(sessionOut);
   postEvent.mockResolvedValue(eventOut());
   stop.mockResolvedValue({} as sessionsApi.SessionSummaryWire);
@@ -152,5 +161,66 @@ describe("useFocusSession", () => {
     await waitFor(() => expect(postEvent).toHaveBeenCalled());
     expect(postEvent.mock.calls[0][0]).toBe("s1");
     expect(start).toHaveBeenCalledTimes(1);
+  });
+
+  describe("focus audio", () => {
+    it("fades to 0 on pause", () => {
+      const { result } = renderHook(() => useFocusSession(TAPE, { queue: fast(), chime: chime() }));
+      act(() => result.current.play());
+      audioStub.playing = true;
+      audioStub.fadeTo.mockClear();
+      act(() => result.current.pause());
+      expect(audioStub.fadeTo).toHaveBeenCalledWith(0);
+      expect(result.current.status).toBe("paused");
+    });
+
+    it("fades to 1 when resuming on a track", () => {
+      const { result } = renderHook(() => useFocusSession(TAPE, { queue: fast(), chime: chime() }));
+      act(() => result.current.play());
+      audioStub.playing = true;
+      act(() => result.current.pause());
+      audioStub.fadeTo.mockClear();
+      act(() => result.current.play());
+      expect(audioStub.fadeTo).toHaveBeenCalledWith(1);
+    });
+
+    it("leaves the sound at 0 when resuming on an interlude", () => {
+      const { result } = renderHook(() => useFocusSession(TAPE, { queue: fast(), chime: chime() }));
+      act(() => result.current.play());
+      act(() => result.current.ff()); // t1 skipped, now on interlude i1
+      audioStub.playing = true;
+      act(() => result.current.pause());
+      audioStub.fadeTo.mockClear();
+      act(() => result.current.play());
+      expect(audioStub.fadeTo).not.toHaveBeenCalledWith(1);
+    });
+
+    it("does not silence a new session that starts on a track after STOP on an interlude", () => {
+      const { result } = renderHook(() => useFocusSession(TAPE, { queue: fast(), chime: chime() }));
+      act(() => result.current.play());
+      act(() => result.current.ff()); // now on interlude i1
+      act(() => result.current.stop());
+      audioStub.playing = false;
+      audioStub.fadeTo.mockClear();
+      act(() => result.current.play());
+      expect(audioStub.fadeTo).not.toHaveBeenCalledWith(0, 0);
+    });
+
+    it("starts silent when the first item is an interlude", () => {
+      const interludeFirst = {
+        id: "tape2",
+        side_a: [item("i1", 0, "interlude"), item("t1", 1, "track")],
+        side_b: [],
+      } as unknown as TapeWire;
+      const { result } = renderHook(() =>
+        useFocusSession(interludeFirst, { queue: fast(), chime: chime() }),
+      );
+      act(() => result.current.play());
+      expect(audioStub.start).toHaveBeenCalledTimes(1);
+      expect(audioStub.fadeTo).toHaveBeenCalledWith(0, 0);
+      expect(audioStub.start.mock.invocationCallOrder[0]).toBeLessThan(
+        audioStub.fadeTo.mock.invocationCallOrder[0],
+      );
+    });
   });
 });
