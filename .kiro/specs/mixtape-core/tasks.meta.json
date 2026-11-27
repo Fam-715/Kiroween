@@ -212,7 +212,6 @@
         "timestamp": 1795598227396
       }
     ],
-
     "7.2 `domain/strength.ts`, `domain/clock.ts` (mirror the backend) and the": [
       {
         "executionId": "a7edb569-731d-4af4-9044-66b32e78b14b",
@@ -284,7 +283,86 @@
         "executionId": "ae9bea45-6ec5-4f52-bc71-a0abdb1c42f7",
         "chatSessionId": "sess_47ea7682-aed3-4350-9db3-2028c0794b9a",
         "timestamp": 1795625501993
-
+      }
+    ],
+    "15. Haunted shelf, J-card and restore": [
+      {
+        "executionId": "cab2cd00-15ef-4c9d-aef4-3aeb9c5a3cb6",
+        "chatSessionId": "sess_03a8d498-b6a3-4b3e-ad82-8899445a5812",
+        "timestamp": 1795681596915
+      },
+      {
+        "executionId": "cab2cd00-15ef-4c9d-aef4-3aeb9c5a3cb6",
+        "chatSessionId": "sess_03a8d498-b6a3-4b3e-ad82-8899445a5812",
+        "timestamp": 1795682793020
+      },
+      {
+        "executionId": "63bce8e5-1b49-482c-a4a6-0bd9fc21a00b",
+        "chatSessionId": "sess_03a8d498-b6a3-4b3e-ad82-8899445a5812",
+        "timestamp": 1795683548128
+      },
+      {
+        "executionId": "63bce8e5-1b49-482c-a4a6-0bd9fc21a00b",
+        "chatSessionId": "sess_03a8d498-b6a3-4b3e-ad82-8899445a5812",
+        "timestamp": 1795684004784
+      }
+    ],
+    "9.1 `useTapePlayer` state machine with timestamp-based countdown and reload resume": [
+      {
+        "executionId": "15053a2e-8f67-45cd-a836-3eda337d86e5",
+        "chatSessionId": "sess_aae022dc-23df-48c5-8530-66edbf7a4f09",
+        "timestamp": 1795679831347
+      },
+      {
+        "executionId": "15053a2e-8f67-45cd-a836-3eda337d86e5",
+        "chatSessionId": "sess_aae022dc-23df-48c5-8530-66edbf7a4f09",
+        "timestamp": 1795680363584
+      }
+    ],
+    "14.3 Frontend `Settings`: add the \"Demo time warp\" toggle (hidden when not allowed, with": [
+      {
+        "executionId": "94d1632e-07b6-4e8b-b72d-613fbf12a1bf",
+        "chatSessionId": "sess_a44715f3-c965-4646-841c-e9267067e010",
+        "timestamp": 1795685965720
+      },
+      {
+        "executionId": "94d1632e-07b6-4e8b-b72d-613fbf12a1bf",
+        "chatSessionId": "sess_a44715f3-c965-4646-841c-e9267067e010",
+        "timestamp": 1795686523000
+      }
+    ],
+    "14. Demo settings": [
+      {
+        "executionId": "94d1632e-07b6-4e8b-b72d-613fbf12a1bf",
+        "chatSessionId": "sess_a44715f3-c965-4646-841c-e9267067e010",
+        "timestamp": 1795686523452
+      }
+    ],
+    "10. Typed recall and strength display": [
+      {
+        "executionId": "285a8401-6ddb-4a12-8210-12faa192acaf",
+        "chatSessionId": "sess_fae27242-6c1c-499a-a497-a4481a93e050",
+        "timestamp": 1795698567822
+      },
+      {
+        "executionId": "1ea30d72-2fc1-4576-bc01-fde2ba7a635d",
+        "chatSessionId": "sess_fae27242-6c1c-499a-a497-a4481a93e050",
+        "timestamp": 1795698626898
+      },
+      {
+        "executionId": "1ea30d72-2fc1-4576-bc01-fde2ba7a635d",
+        "chatSessionId": "sess_fae27242-6c1c-499a-a497-a4481a93e050",
+        "timestamp": 1795699140044
+      },
+      {
+        "executionId": "9345aacb-379c-4be8-b328-f3077165f952",
+        "chatSessionId": "sess_fae27242-6c1c-499a-a497-a4481a93e050",
+        "timestamp": 1795699719583
+      },
+      {
+        "executionId": "9345aacb-379c-4be8-b328-f3077165f952",
+        "chatSessionId": "sess_fae27242-6c1c-499a-a497-a4481a93e050",
+        "timestamp": 1795699852115
       }
     ]
   }

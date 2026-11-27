@@ -10,10 +10,12 @@ vi.mock("../src/api/tapes", async (importOriginal) => {
     ...actual,
     getSettings: vi.fn(),
     putSettings: vi.fn(),
+    listTapes: vi.fn(),
   };
 });
 
 const mockGetSettings = vi.mocked(tapesApi.getSettings);
+const mockListTapes = vi.mocked(tapesApi.listTapes);
 
 function makeSettings(overrides: Partial<tapesApi.SettingsWire> = {}): tapesApi.SettingsWire {
   return {
@@ -31,6 +33,7 @@ describe("base layout and routes (task 7.4)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockGetSettings.mockResolvedValue(makeSettings());
+    mockListTapes.mockResolvedValue([]);
   });
   it("renders the header, brand link and both nav links with aria-labels", () => {
     render(<App />);
@@ -50,14 +53,10 @@ describe("base layout and routes (task 7.4)", () => {
     expect(screen.getByRole("main")).toHaveAttribute("id", "main-content");
   });
 
-  it("shows the shelf route by default with condition text", () => {
+  it("shows the shelf route by default with its empty state", async () => {
     render(<App />);
     expect(screen.getByRole("heading", { name: "The Shelf" })).toBeInTheDocument();
-    // Requirement 9.6: condition is always carried by text, never colour alone.
-    expect(screen.getAllByTestId("condition-text").length).toBeGreaterThan(0);
-    expect(screen.getAllByTestId("condition-text")[0]).toHaveTextContent(
-      /mint|worn|warped|haunted|dead/i,
-    );
+    expect(await screen.findByText("No tapes yet. Record your first one.")).toBeInTheDocument();
   });
 
   it("navigates to the recorder route from the shelf button", () => {

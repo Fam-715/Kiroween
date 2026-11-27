@@ -73,6 +73,21 @@ const config: Config = {
       boxShadow: {
         // Haunted vignette for panels.
         haunted: "inset 0 0 80px 20px rgba(0,0,0,0.75)",
+        // Outer purple glow (condition-haunted, 155 107 214) for due tapes on the shelf.
+        // Intensity: Haunted > Warped > Worn.
+        "glow-faint": "0 0 8px 1px rgba(155,107,214,0.35)",
+        "glow-medium": "0 0 16px 3px rgba(155,107,214,0.55)",
+        "glow-strong": "0 0 28px 8px rgba(155,107,214,0.8)",
+      },
+      keyframes: {
+        // Slow (4 s) opacity breathing of the glow overlay only, never the text.
+        "glow-flicker": {
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: "0.55" },
+        },
+      },
+      animation: {
+        "glow-flicker": "glow-flicker 4s ease-in-out infinite",
       },
     },
   },

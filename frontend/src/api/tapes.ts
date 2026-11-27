@@ -47,6 +47,14 @@ export interface TapeItemWire {
   memory: TrackMemoryWire | null;
 }
 
+/** Liner-note stats; mirrors the backend's TapeStatsOut. */
+export interface TapeStatsWire {
+  sessions: number;
+  focus_minutes: number;
+  tracks_completed: number;
+  tracks_skipped: number;
+}
+
 export interface TapeWire {
   id: string;
   title: string;
@@ -63,6 +71,7 @@ export interface TapeWire {
   due_count: number;
   next_review_at: string | null;
   ghost: boolean;
+  stats: TapeStatsWire;
 }
 
 // --- Settings ----------------------------------------------------------------------
@@ -100,6 +109,16 @@ export function getSettings(): Promise<SettingsWire> {
   return apiFetch<SettingsWire>("/api/settings");
 }
 
-export function putSettings(demoMode: boolean): Promise<SettingsWire> {
-  return apiFetch<SettingsWire>("/api/settings", { method: "PUT", body: { demo_mode: demoMode } });
+export interface SettingsUpdate {
+  demo_mode?: boolean;
+  time_warp?: boolean;
+}
+
+export function putSettings(update: SettingsUpdate): Promise<SettingsWire> {
+  return apiFetch<SettingsWire>("/api/settings", { method: "PUT", body: update });
+}
+
+/** Creates the sample tape (four tracks at different strengths, no audio). */
+export function createSampleTape(): Promise<TapeWire> {
+  return apiFetch<TapeWire>("/api/tapes/sample", { method: "POST" });
 }

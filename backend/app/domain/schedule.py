@@ -202,6 +202,8 @@ def validate_tape(
         out.append(
             RuleViolation("length", None, f"Length must be one of {', '.join(TAPE_LENGTHS)}.")
         )
+    if not any(i.kind == "track" for i in (*tape.side_a, *tape.side_b)):
+        out.append(RuleViolation("no_tracks", None, "Add at least one track."))
     for side, items in (("A", tape.side_a), ("B", tape.side_b)):
         out.extend(
             validate_side(items, demo_mode, unchanged_ids, length=tape.length, side=side)

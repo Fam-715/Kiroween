@@ -66,6 +66,24 @@ def test_create_returns_mint_unrecorded_tape(env) -> None:
     assert data["side_a"][1]["memory"] is None
 
 
+@pytest.mark.parametrize("side_a", [[], [interlude()]])
+def test_tape_with_no_tracks_is_422(env, side_a) -> None:
+    client, _, _ = env
+    res = client.post("/api/tapes", json=body(side_a=side_a, side_b=[]))
+    assert res.status_code == 422
+    detail = res.json()["detail"]
+    assert {"rule": "no_tracks", "side": None, "message": "Add at least one track."} in detail
+    assert client.get("/api/tapes").json() == []
+
+
+def test_update_to_a_tape_with_no_tracks_is_422(env) -> None:
+    client, _, _ = env
+    tape_id = client.post("/api/tapes", json=body()).json()["id"]
+    res = client.put(f"/api/tapes/{tape_id}", json=body(side_a=[], side_b=[]))
+    assert res.status_code == 422
+    assert any(v["rule"] == "no_tracks" for v in res.json()["detail"])
+
+
 def test_rule_violations_are_422_with_rule_side_message(env) -> None:
     client, _, _ = env
     res = client.post(

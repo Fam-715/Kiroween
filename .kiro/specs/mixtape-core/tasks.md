@@ -127,9 +127,14 @@ scoring, stability and strength, and applies each event once (idempotent on
 - [x] 8.2 Demo mode toggle: `Settings` panel with the "Demo mode" toggle (labelled as text while on)
   - The time warp toggle and "Load sample tape" button are added in task 14.3.
   - _Requirements: 12.1, 12.2, 12.3_
+- [x] 8.3 Require at least one track, and show Recorder errors only after interaction
+  - `no_tracks` rule in backend `validate_tape` (422) and frontend `validateTape`; Recorder shows
+    "Add at least one track" and blocks Save. Errors stay hidden until the field is edited or
+    Save has been pressed once. Backend and Recorder tests added.
+  - _Requirements: 2.9_
 
 - [ ] 9. Player
-- [ ] 9.1 `useTapePlayer` state machine with timestamp-based countdown and reload resume
+- [x] 9.1 `useTapePlayer` state machine with timestamp-based countdown and reload resume
   - Property tests: countdown never negative or above the item duration; every item ends in
     exactly one state for any button sequence.
   - _Requirements: 3.1–3.9, 3.11, 3.12, 12.11_
@@ -143,7 +148,7 @@ scoring, stability and strength, and applies each event once (idempotent on
   - The timer and audio never stop on network failure.
   - _Requirements: 3.5, 5.1, 13.1, 13.2_
 
-- [ ] 10. Typed recall and strength display
+- [x] 10. Typed recall and strength display
   - `RecallPanel` with the typing path only (the same panel will gain voice in task 11):
     submit text, show the score, matched and missed terms. Show each track's strength,
     condition, stability and next review on the tape page, updated with `strength.ts` between
@@ -178,7 +183,7 @@ and the track's strength, then skip a break and watch stability drop in the resp
     tracks in the tape map, and a static outline with reduced motion.
   - Component test: the toast and affected tracks show after a skipped interlude.
   - _Requirements: 4.7, 4.8_
-- [ ] 14. Demo settings
+- [x] 14. Demo settings
 - [x] 14.1 Backend: extend `GET/PUT /api/settings` (from task 4.2) with time warp (scale 1 or
   1440 with continuous virtual time, `time_warp_allowed` from `ALLOW_TIME_WARP`, 403 when it
   is not true)
@@ -188,13 +193,17 @@ and the track's strength, then skip a break and watch stability drop in the resp
   - Property tests: the sample is valid, deterministic, and has exactly one Mint, one Worn
     (due), one Warped and one Haunted track at creation.
   - _Requirements: 12.9, 12.10_
-- [ ] 14.3 Frontend `Settings`: add the "Demo time warp" toggle (hidden when not allowed, with
+- [x] 14.3 Frontend `Settings`: add the "Demo time warp" toggle (hidden when not allowed, with
   a "TIME WARP ON" label) and the "Load sample tape" button to the panel from task 8.2
   - _Requirements: 12.5, 12.8, 12.9_
-- [ ] 15. Haunted shelf, J-card and restore
+- [x] 15. Haunted shelf, J-card and restore
   - Shelf spines with condition, "N due" labels and haunted look, ghost rendering for
     Forgotten tapes, J-card with stats and per-track strength and next review, REC and PLAY
     recording buttons, delete with confirmation (also deletes recordings).
+  - Status: shelf, J-card, route `/tape/:tapeId` and delete confirmation are done. The REC and
+    play-recording buttons on the J-card are NOT built yet: tasks 10-12 add them (marked by a
+    comment in `components/JCard`). Task 11 must also delete the tape's recordings from
+    IndexedDB at the delete call in the J-card.
   - Property test: total focus minutes equals the sum of completed track durations; the due
     count equals tracks with unrounded strength ≤ 70.
   - _Requirements: 6.10, 6.11, 8.1–8.7, 11.1–11.6_
