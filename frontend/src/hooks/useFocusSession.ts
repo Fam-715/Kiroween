@@ -231,21 +231,37 @@ export function useFocusSession(
   const status = player.status;
   const playerPlay = player.play;
   const playerPause = player.pause;
+  const itemKind = player.item?.kind ?? null;
+
+  const pause = useCallback(() => {
+    playerPause();
+    audioRef.current.fadeTo(0);
+  }, [playerPause]);
 
   // Runs inside the click: the audio contexts are created here, never in an effect.
   const play = useCallback(() => {
     if (plan.sideA.length === 0 && plan.sideB.length === 0) return;
     chime.prime();
-    if (!audioRef.current.playing) audioRef.current.start();
-    if (needsNewSession(status)) beginSession();
+    const newSession = needsNewSession(status);
+    // A new session restarts at the first item, not where the old one stopped.
+    const kind = newSession ? (plan.sideA[0] ?? plan.sideB[0])?.kind : itemKind;
+    if (audioRef.current.playing) {
+      // Resuming: bring the sound back only on a track; interludes stay silent.
+      if (kind === "track") audioRef.current.fadeTo(1);
+    } else {
+      audioRef.current.start();
+      // start() resets the gain to 1, so silence an interlude at once (no fade-in blip).
+      if (kind === "interlude") audioRef.current.fadeTo(0, 0);
+    }
+    if (newSession) beginSession();
     else ensureHolder();
     playerPlay();
-  }, [plan, chime, status, beginSession, ensureHolder, playerPlay]);
+  }, [plan, chime, status, itemKind, beginSession, ensureHolder, playerPlay]);
 
   const toggle = useCallback(() => {
-    if (status === "playing") playerPause();
+    if (status === "playing") pause();
     else play();
-  }, [status, playerPause, play]);
+  }, [status, pause, play]);
 
-  return { ...player, play, toggle, lastPenalty, audio };
+  return { ...player, play, pause, toggle, lastPenalty, audio };
 }
