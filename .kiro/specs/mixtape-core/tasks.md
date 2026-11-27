@@ -141,7 +141,7 @@ scoring, stability and strength, and applies each event once (idempotent on
 - [ ] 9.2 `CassettePlayer` component: SVG cassette, reels, LCD, buttons (including REC),
   flip animation, tape map of tracks, keyboard controls, aria labels
   - _Requirements: 3.7, 3.10_
-- [ ] 9.3 Send events with `client_event_id`, show the REC prompt when a track ends, and
+- [x] 9.3 Send events with `client_event_id`, show the REC prompt when a track ends, and
   retry failed events in order at a fixed interval (about 5 s, a few attempts)
   - Play a simple completion chime when a track or interlude ends (a two-tone Web Audio
     oscillator beep of about 0.4 s, created on the first PLAY press). Task 16 can improve it.
