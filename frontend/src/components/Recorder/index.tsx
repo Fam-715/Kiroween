@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { ApiError } from "../../api/client";
+import { removeMany } from "../../audio/recordingStore";
 import {
   createTape,
   getSettings,
@@ -113,6 +114,8 @@ export default function Recorder() {
 
   /** Minutes of the loaded (server) items, for the Demo-mode unchanged-id exemption. */
   const originalMinutes = useRef<Record<string, number>>({});
+  /** Ids of tracks that were on the saved tape, to clean up their recordings. */
+  const originalTrackIds = useRef<Record<string, true>>({});
 
   useEffect(() => {
     let cancelled = false;
@@ -130,6 +133,7 @@ export default function Recorder() {
           setSideB(tape.side_b.map(toDraftItem));
           for (const item of [...tape.side_a, ...tape.side_b]) {
             originalMinutes.current[item.id] = item.minutes;
+            if (item.kind === "track") originalTrackIds.current[item.id] = true;
           }
         }
       } catch (e) {
@@ -278,6 +282,16 @@ export default function Recorder() {
       };
       if (tapeId) {
         await updateTape(tapeId, body);
+        const kept = new Set(
+          [...sideA, ...sideB].filter((i) => i.kind === "track" && i.serverId).map((i) => i.serverId as string),
+        );
+        const gone = Object.keys(originalTrackIds.current).filter((id) => !kept.has(id));
+        try {
+          await removeMany(gone);
+        } catch {
+          // recordings are local extras; the tape is already saved
+        }
+        for (const id of gone) delete originalTrackIds.current[id];
       } else {
         await createTape(body);
       }
