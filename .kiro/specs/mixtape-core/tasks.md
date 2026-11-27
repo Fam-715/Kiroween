@@ -101,7 +101,7 @@ scoring, stability and strength, and applies each event once (idempotent on
     raises stability, spam re-recording does not.
   - _Requirements: 5.10, 5.11, 6.5–6.8, 8.1, 8.4–8.7, 13.3_
 
-- [ ] 7. Frontend foundation
+- [x] 7. Frontend foundation
 - [x] 7.1 `useListenerId` hook and typed API client that sends `X-Listener-Id`
   - _Requirements: 1.1, 1.2_
 - [x] 7.2 `domain/strength.ts`, `domain/clock.ts` (mirror the backend) and the
@@ -111,7 +111,7 @@ scoring, stability and strength, and applies each event once (idempotent on
     monotonic, strength in 0–100, virtual time never decreases.
   - Hook test: `virtualNow()` follows the server clock offset and scale.
   - _Requirements: 6.2–6.4, 6.12, 12.7_
-- [ ] 7.3 `domain/effects.ts` (`effectsFor`, `fadeGain`; numeric table in design.md)
+- [x] 7.3 `domain/effects.ts` (`effectsFor`, `fadeGain`; numeric table in design.md)
   - fast-check property tests: effect intensity never increases with strength; reduced
     motion zeroes visual wobble and flicker; fade gain is monotonic and bounded; gain is 0
     when muted and never above volume; Dead has no voice gain.
