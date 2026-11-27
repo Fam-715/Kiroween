@@ -224,7 +224,6 @@
         "timestamp": 1795606891828
       }
     ],
-
     "7.3 `domain/effects.ts` (`effectsFor`, `fadeGain`; numeric table in design.md)": [
       {
         "executionId": "86ffe433-7fba-47cd-8d43-bc03ead18f57",
@@ -363,6 +362,28 @@
         "executionId": "9345aacb-379c-4be8-b328-f3077165f952",
         "chatSessionId": "sess_fae27242-6c1c-499a-a497-a4481a93e050",
         "timestamp": 1795699852115
+      }
+    ],
+    "9.3 Send events with `client_event_id`, show the REC prompt when a track ends, and": [
+      {
+        "executionId": "5f0a3357-00a5-4105-9d3d-a08455da3b67",
+        "chatSessionId": "sess_da99456d-2792-4582-914b-3a46c744570e",
+        "timestamp": 1795777921173
+      },
+      {
+        "executionId": "d28d69dc-69e8-4bd0-9158-47289cd7b4ea",
+        "chatSessionId": "sess_da99456d-2792-4582-914b-3a46c744570e",
+        "timestamp": 1795777939024
+      },
+      {
+        "executionId": "76cbdb57-cd3f-43e2-97a7-e29a98782698",
+        "chatSessionId": "sess_da99456d-2792-4582-914b-3a46c744570e",
+        "timestamp": 1795778720962
+      },
+      {
+        "executionId": "45ae9424-f457-4b11-9b82-43b908fef193",
+        "chatSessionId": "sess_da99456d-2792-4582-914b-3a46c744570e",
+        "timestamp": 1795780630755
       }
     ]
   }
