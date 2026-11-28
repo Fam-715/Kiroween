@@ -451,6 +451,23 @@
         "chatSessionId": "sess_189d094e-98c8-4a53-b7b2-86cb142f32f5",
         "timestamp": 1795853212822
       }
+    ],
+    "17. Haunted effects by condition (without ghost whispers)": [
+      {
+        "executionId": "d4422b79-a5b7-42eb-9ce9-532d93f4f5b0",
+        "chatSessionId": "sess_8d6ab04a-cff6-47ba-8eef-45579ea0aade",
+        "timestamp": 1795855768870
+      },
+      {
+        "executionId": "e98b5e9d-62ba-49b7-90c2-f223abfda6b0",
+        "chatSessionId": "sess_8d6ab04a-cff6-47ba-8eef-45579ea0aade",
+        "timestamp": 1795855812101
+      },
+      {
+        "executionId": "e7048909-94da-4097-a99a-3a74a0b34777",
+        "chatSessionId": "sess_8d6ab04a-cff6-47ba-8eef-45579ea0aade",
+        "timestamp": 1795856762998
+      }
     ]
   }
 }

@@ -133,7 +133,7 @@ describe("base layout and routes (task 7.4)", () => {
     expect(
       screen.getByRole("heading", { name: "Cassette Player" }),
     ).toBeInTheDocument();
-    expect(screen.getByTestId("condition-text")).toBeInTheDocument();
+    expect(screen.getAllByTestId("condition-text").length).toBeGreaterThan(0);
     window.history.pushState({}, "", "/");
   });
 

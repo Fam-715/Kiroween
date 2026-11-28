@@ -216,7 +216,10 @@ describe("CassettePlayer", () => {
     expect(segments).toHaveLength(3);
     const trackSegments = segments.filter((s) => s.hasAttribute("data-track-id"));
     expect(trackSegments.map((s) => s.getAttribute("data-track-id"))).toEqual(["a1", "b1"]);
-    expect(screen.getAllByTestId("condition-text")).toHaveLength(2);
+    const mapConditionTexts = segments.flatMap((s) =>
+      Array.from(s.querySelectorAll('[data-testid="condition-text"]')),
+    );
+    expect(mapConditionTexts).toHaveLength(2);
   });
 
   it("shows the RecPrompt when a track has just ended and enables REC", async () => {
