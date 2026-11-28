@@ -1,12 +1,29 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { removeMany } from "../../audio/recordingStore";
+import { playRecording, type PlaybackHandle } from "../../audio/decayedPlayback";
+import { get as getRecording, removeMany } from "../../audio/recordingStore";
+import { effectsFor } from "../../domain/effects";
 import { deleteTape, getTape, type TapeItemWire, type TapeWire } from "../../api/tapes";
 import { predictFromWire, predictStrength, relativeReview } from "../../domain/shelf";
 import { condition as conditionOf } from "../../domain/strength";
 import { useVirtualClock } from "../../hooks/useVirtualClock";
 import ConditionText from "../ConditionText";
 import RecallPanel from "../RecallPanel";
+
+/** Only one recording plays at a time on the page. */
+let active: { handle: PlaybackHandle; onStopped: () => void } | null = null;
+
+function stopActive(): void {
+  const a = active;
+  active = null;
+  if (a) {
+    a.handle.stop();
+    a.onStopped();
+  }
+}
+
+const playClass =
+  "rounded-sm border border-plastic-500 px-3 py-1 font-type text-sm text-ink hover:bg-plum-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-lcd-green disabled:opacity-40";
 
 function TrackRow({
   item,
@@ -21,12 +38,34 @@ function TrackRow({
 }) {
   const label = item.name ?? "Untitled track";
   const m = item.memory;
+  const [playing, setPlaying] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [note, setNote] = useState<string | null>(null);
+  const mounted = useRef(true);
+  const stoppedRef = useRef<() => void>(() => {});
+  stoppedRef.current = () => {
+    if (mounted.current) setPlaying(false);
+  };
+
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+      if (active && active.onStopped === ownStop.current) stopActive();
+    };
+  }, []);
+  // Stable identity so the row can tell whether it owns the active playback.
+  const ownStop = useRef<() => void>(() => stoppedRef.current());
+
+  // Strength shown in the row; recordings without server memory play undecayed.
+  let shownStrength = 100;
   let detail: React.ReactNode;
   if (!m || !m.recorded || m.strength === null) {
     detail = <span className="text-plastic-300">Not recorded yet</span>;
   } else {
     const elapsed = Math.max(0, nowMs - Date.parse(tape.virtual_now));
     const strength = predictStrength(m.strength, m.stability_days, elapsed);
+    shownStrength = strength;
     const next = m.next_review_at === null ? null : Date.parse(m.next_review_at);
     const isDue = next !== null && next <= nowMs;
     detail = (
@@ -43,6 +82,45 @@ function TrackRow({
       </>
     );
   }
+  async function onPlay() {
+    if (busy) return;
+    setNote(null);
+    if (playing) {
+      stopActive();
+      return;
+    }
+    stopActive();
+    setBusy(true);
+    try {
+      const rec = await getRecording(item.id);
+      if (!rec) {
+        if (mounted.current) setNote("No recording on this device");
+        return;
+      }
+      const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      let ended = false;
+      const handle = await playRecording(rec.blob, effectsFor(shownStrength, reduced), {
+        onEnded: () => {
+          ended = true;
+          if (active?.onStopped === ownStop.current) active = null;
+          stoppedRef.current();
+        },
+      });
+      if (!mounted.current) {
+        handle.stop();
+        return;
+      }
+      if (ended) return;
+      stopActive();
+      active = { handle, onStopped: ownStop.current };
+      setPlaying(true);
+    } catch {
+      if (mounted.current) setNote("Could not play this recording");
+    } finally {
+      if (mounted.current) setBusy(false);
+    }
+  }
+
   return (
     <li className="flex flex-wrap items-baseline gap-2 py-1" data-testid="jcard-track">
       <span className="font-hand text-lg text-ink">{label}</span>
@@ -55,7 +133,21 @@ function TrackRow({
       >
         ● REC
       </button>
-      {/* Task 12 adds the play-recording button here. */}
+      <button
+        type="button"
+        aria-label={playing ? `Stop recording of ${label}` : `Play recording of ${label}`}
+        aria-pressed={playing}
+        disabled={busy}
+        onClick={() => void onPlay()}
+        className={playClass}
+      >
+        {playing ? "■ Stop" : "▶ Play"}
+      </button>
+      {note && (
+        <span role="status" className="text-sm text-plastic-300">
+          {note}
+        </span>
+      )}
     </li>
   );
 }

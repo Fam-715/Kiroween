@@ -173,7 +173,7 @@ and the track's strength, then skip a break and watch stability drop in the resp
   - Component tests: typing fallback when `SpeechRecognition` is missing; mic denied.
   - A re-recording replaces the previous audio for the track.
   - _Requirements: 5.2–5.9, 5.13, 8.2, 10.6_
-- [ ] 12. Decayed playback
+- [x] 12. Decayed playback
   - `audio/decayedPlayback.ts`: play a stored recording through hiss, speed and pitch wobble
     and distortion by the track's current condition; static only when Dead; "No recording on
     this device" with REC; delete recordings when tracks or tapes are deleted.
