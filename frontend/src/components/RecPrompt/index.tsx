@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { RecallWire } from "../../api/recalls";
 import type { TapeWire } from "../../api/tapes";
 import type { RetryQueue } from "../../domain/retryQueue";
@@ -13,17 +13,33 @@ interface Props {
   queue?: RetryQueue;
   /** Called true when voice recording starts and false when it ends. */
   onRecordingChange?: (recording: boolean) => void;
+  /** Opens the recall panel each time this number changes (for the REC button and R key). */
+  openRequest?: number;
 }
 
 /** Shown when a track ends. Opens the existing RecallPanel; there is no second recall UI. */
-export default function RecPrompt({ tape, trackId, onResult, queue, onRecordingChange }: Props) {
+export default function RecPrompt({
+  tape,
+  trackId,
+  onResult,
+  queue,
+  onRecordingChange,
+  openRequest,
+}: Props) {
   const [open, setOpen] = useState(false);
   const [dismissed, setDismissed] = useState(false);
+  const handledRequest = useRef(openRequest);
 
   useEffect(() => {
     setOpen(false);
     setDismissed(false);
   }, [trackId]);
+
+  useEffect(() => {
+    if (openRequest === handledRequest.current) return;
+    handledRequest.current = openRequest;
+    if (trackId !== null) setOpen(true);
+  }, [openRequest, trackId]);
 
   if (trackId === null) return null;
   const track = [...tape.side_a, ...tape.side_b].find((i) => i.id === trackId && i.kind === "track");
