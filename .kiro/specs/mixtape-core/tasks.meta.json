@@ -424,6 +424,33 @@
         "chatSessionId": "sess_3caad247-66ea-4223-9e20-1f3449af7986",
         "timestamp": 1795843746785
       }
+    ],
+    "13. Break-skip feedback": [
+      {
+        "executionId": "0728d0f0-67d1-4124-b954-a240d63a289c",
+        "chatSessionId": "sess_189d094e-98c8-4a53-b7b2-86cb142f32f5",
+        "timestamp": 1795851552065
+      },
+      {
+        "executionId": "9d168f99-cdff-4b31-8f1c-f1225170f9cb",
+        "chatSessionId": "sess_189d094e-98c8-4a53-b7b2-86cb142f32f5",
+        "timestamp": 1795851644502
+      },
+      {
+        "executionId": "9d168f99-cdff-4b31-8f1c-f1225170f9cb",
+        "chatSessionId": "sess_189d094e-98c8-4a53-b7b2-86cb142f32f5",
+        "timestamp": 1795852058565
+      },
+      {
+        "executionId": "aaefccf7-f165-4ea1-8a1d-85bc3da673c3",
+        "chatSessionId": "sess_189d094e-98c8-4a53-b7b2-86cb142f32f5",
+        "timestamp": 1795852590084
+      },
+      {
+        "executionId": "aaefccf7-f165-4ea1-8a1d-85bc3da673c3",
+        "chatSessionId": "sess_189d094e-98c8-4a53-b7b2-86cb142f32f5",
+        "timestamp": 1795853212822
+      }
     ]
   }
 }
