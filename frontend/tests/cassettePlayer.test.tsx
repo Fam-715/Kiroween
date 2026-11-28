@@ -2,6 +2,7 @@ import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ApiError } from "../src/api/client";
+import * as sessionsApi from "../src/api/sessions";
 import * as tapesApi from "../src/api/tapes";
 import type { TapeItemWire, TapeWire } from "../src/api/tapes";
 import CassettePlayer from "../src/components/CassettePlayer";
@@ -237,6 +238,70 @@ describe("CassettePlayer", () => {
     await waitFor(() =>
       expect(screen.queryByRole("status", { name: /recall prompt/i })).not.toBeInTheDocument(),
     );
+  });
+
+  it("PLAY and PAUSE use the orange colours, not the default plum ones", async () => {
+    await ready();
+    const play = screen.getByRole("button", { name: "Play" });
+    expect(play.className).toContain("bg-label-orange");
+    expect(play.className).not.toContain("bg-plum-900");
+    fireEvent.click(play);
+    const pause = screen.getByRole("button", { name: "Pause" });
+    expect(pause.className).toContain("bg-label-orange");
+    expect(pause.className).toContain("text-plum-950");
+    expect(pause.className).not.toContain("bg-plum-900");
+    expect(screen.getByRole("button", { name: "Stop" }).className).toContain("bg-plum-900");
+  });
+
+  describe("after a skip penalty", () => {
+    async function skipFirstTrack() {
+      vi.mocked(sessionsApi.postSessionEvent).mockResolvedValueOnce({
+        penalty: [{ track_id: "a1", stability_before: 10, stability_after: 9 }],
+      } as Awaited<ReturnType<typeof sessionsApi.postSessionEvent>>);
+      await ready();
+      fireEvent.click(screen.getByRole("button", { name: "Play" }));
+      fireEvent.click(screen.getByRole("button", { name: "Fast forward" }));
+      await screen.findByText("The tape remembers…");
+    }
+
+    function segmentOf(trackId: string) {
+      return screen
+        .getAllByTestId("map-segment")
+        .find((s) => s.getAttribute("data-track-id") === trackId)!;
+    }
+
+    it("shows the toast and glitches the affected track", async () => {
+      await skipFirstTrack();
+      expect(screen.getByText("Memory span −10% on 1 track")).toBeInTheDocument();
+      await waitFor(() =>
+        expect(segmentOf("a1").querySelector("[data-glitch]")).toHaveAttribute(
+          "data-glitch",
+          "animated",
+        ),
+      );
+      expect(segmentOf("b1").querySelector("[data-glitch]")).toHaveAttribute("data-glitch", "off");
+    });
+
+    it("uses a static outline under reduced motion", async () => {
+      const original = window.matchMedia;
+      window.matchMedia = ((query: string) => ({
+        matches: true,
+        media: query,
+        addEventListener: () => {},
+        removeEventListener: () => {},
+      })) as unknown as typeof window.matchMedia;
+      try {
+        await skipFirstTrack();
+        await waitFor(() =>
+          expect(segmentOf("a1").querySelector("[data-glitch]")).toHaveAttribute(
+            "data-glitch",
+            "outline",
+          ),
+        );
+      } finally {
+        window.matchMedia = original;
+      }
+    });
   });
 
   it("shows the flip prompt and starts Side B on PLAY", async () => {

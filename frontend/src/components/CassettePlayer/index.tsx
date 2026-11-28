@@ -5,7 +5,10 @@ import { ApiError } from "../../api/client";
 import { getTape, type TapeItemWire, type TapeWire } from "../../api/tapes";
 import { FOCUS_SOUNDS, type FocusSound } from "../../audio/focusAudio";
 import { useFocusSession } from "../../hooks/useFocusSession";
+import { useGlitchTracks } from "../../hooks/useGlitchTracks";
+import BreakSkipToast from "../BreakSkipToast";
 import ConditionText from "../ConditionText";
+import GlitchSegment from "../GlitchSegment";
 import RecPrompt from "../RecPrompt";
 
 type LoadState =
@@ -204,8 +207,10 @@ function Player({ tape, onRecalled }: { tape: TapeWire; onRecalled: () => void }
           : "INTERLUDE"
         : "—";
 
-  const btn =
-    "flex min-h-12 min-w-12 items-center justify-center rounded-sm border border-plastic-500 bg-plum-900 px-3 py-2 font-type text-ink hover:bg-plum-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-lcd-green disabled:cursor-not-allowed disabled:opacity-40";
+  const btnBase =
+    "flex min-h-12 min-w-12 items-center justify-center rounded-sm border border-plastic-500 px-3 py-2 font-type focus:outline-none focus-visible:ring-2 focus-visible:ring-lcd-green disabled:cursor-not-allowed disabled:opacity-40";
+  const btn = `${btnBase} bg-plum-900 text-ink hover:bg-plum-800`;
+  const btnPrimary = `${btnBase} bg-label-orange text-plum-950 hover:bg-label-orangeBright`;
 
   return (
     <section aria-labelledby="player-heading" className="mx-auto max-w-3xl">
@@ -266,7 +271,7 @@ function Player({ tape, onRecalled }: { tape: TapeWire; onRecalled: () => void }
           aria-label={playing ? "Pause" : "Play"}
           aria-pressed={playing}
           onClick={() => (playing ? player.pause() : player.play())}
-          className={`${btn} bg-label-orange text-plum-950 hover:bg-label-orangeBright`}
+          className={btnPrimary}
         >
           {playing ? "⏸ PAUSE" : "▶ PLAY"}
         </button>
@@ -332,11 +337,7 @@ function Player({ tape, onRecalled }: { tape: TapeWire; onRecalled: () => void }
         </button>
       </div>
 
-      {player.lastPenalty && (
-        <p role="status" className="mt-4 font-type text-condition-warped">
-          {player.lastPenalty.message}
-        </p>
-      )}
+      <BreakSkipToast penalty={player.lastPenalty} />
 
       <TapeMap tape={tape} player={player} />
 
@@ -441,6 +442,7 @@ function TapeMap({ tape, player }: { tape: TapeWire; player: ReturnType<typeof u
     player.status === "idle" || player.status === "finished" || player.status === "stopped"
       ? null
       : (player.item?.id ?? null);
+  const glitching = useGlitchTracks(player.lastPenalty);
   const sides: Array<{ name: "A" | "B"; items: TapeItemWire[] }> = [
     { name: "A", items: [...tape.side_a].sort((a, b) => a.position - b.position) },
     { name: "B", items: [...tape.side_b].sort((a, b) => a.position - b.position) },
@@ -473,19 +475,21 @@ function TapeMap({ tape, player }: { tape: TapeWire; player: ReturnType<typeof u
                         done ? "opacity-50" : ""
                       }`}
                     >
-                      <p className="truncate">{itemLabel(item)}</p>
-                      <p className="font-lcd text-base text-plastic-300">{item.minutes} min</p>
-                      {item.kind === "track" &&
-                        (condition ? (
-                          <ConditionText condition={condition} className="text-xs" />
-                        ) : (
-                          <span className="text-plastic-300">No recording yet</span>
-                        ))}
-                      {done && (
-                        <p className="text-plastic-300">
-                          {player.state.outcomes[item.id] === "completed" ? "Done" : "Skipped"}
-                        </p>
-                      )}
+                      <GlitchSegment glitching={item.kind === "track" && glitching.has(item.id)}>
+                        <p className="truncate">{itemLabel(item)}</p>
+                        <p className="font-lcd text-base text-plastic-300">{item.minutes} min</p>
+                        {item.kind === "track" &&
+                          (condition ? (
+                            <ConditionText condition={condition} className="text-xs" />
+                          ) : (
+                            <span className="text-plastic-300">No recording yet</span>
+                          ))}
+                        {done && (
+                          <p className="text-plastic-300">
+                            {player.state.outcomes[item.id] === "completed" ? "Done" : "Skipped"}
+                          </p>
+                        )}
+                      </GlitchSegment>
                     </li>
                   );
                 })}
