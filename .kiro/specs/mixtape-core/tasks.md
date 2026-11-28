@@ -211,7 +211,7 @@ and the track's strength, then skip a break and watch stability drop in the resp
   - Brown noise, rain, lo-fi loop; 2 s linear fade on interludes; volume 0–100% and mute;
     start only on PLAY. Improve the simple completion chime from task 9.3 if time allows.
   - _Requirements: 10.1–10.5_
-- [ ] 17. Haunted effects by condition (without ghost whispers)
+- [x] 17. Haunted effects by condition (without ghost whispers)
   - Apply `effectsFor` values to visuals and the audio chain (hiss, reel and pitch wobble,
     colour bleed, flicker, shadow figures), reduced motion fallbacks, condition text always
     visible.

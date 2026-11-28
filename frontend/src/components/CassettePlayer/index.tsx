@@ -1,10 +1,12 @@
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ApiError } from "../../api/client";
 import { getTape, type TapeItemWire, type TapeWire } from "../../api/tapes";
 import { FOCUS_SOUNDS, type FocusSound } from "../../audio/focusAudio";
+import { effectsFor, type EffectSettings } from "../../domain/effects";
 import { useFocusSession } from "../../hooks/useFocusSession";
+import { useReducedMotion } from "../../hooks/useReducedMotion";
 import { useGlitchTracks } from "../../hooks/useGlitchTracks";
 import BreakSkipToast from "../BreakSkipToast";
 import ConditionText from "../ConditionText";
@@ -147,12 +149,15 @@ function itemLabel(item: TapeItemWire): string {
 
 function Player({ tape, onRecalled }: { tape: TapeWire; onRecalled: () => void }) {
   const player = useFocusSession(tape);
-  const reduced = useReducedMotion() ?? false;
+  const reduced = useReducedMotion();
   const [recRequest, setRecRequest] = useState(0);
   const userMuted = useRef(player.audio.muted);
 
   const allItems = [...tape.side_a, ...tape.side_b];
   const current = player.item ? allItems.find((i) => i.id === player.item?.id) : undefined;
+  const effectStrength =
+    (current?.kind === "track" ? current.memory?.strength : null) ?? tape.strength ?? 100;
+  const fx = effectsFor(effectStrength, reduced);
   const playing = player.status === "playing";
   const flipping = player.status === "flipping";
   const ended = player.status === "finished" || player.status === "stopped";
@@ -220,7 +225,8 @@ function Player({ tape, onRecalled }: { tape: TapeWire; onRecalled: () => void }
       <Cassette
         title={tape.title}
         side={player.side}
-        spinning={playing && !reduced}
+        spinning={playing && fx.reelSpin}
+        fx={fx}
       />
 
       <div
@@ -242,6 +248,9 @@ function Player({ tape, onRecalled }: { tape: TapeWire; onRecalled: () => void }
         </div>
         <p className="mt-1 truncate font-lcd text-2xl text-lcd-green" data-testid="lcd-item">
           {lcdName}
+        </p>
+        <p className="mt-1 font-type text-base text-ink" data-testid="lcd-condition">
+          Condition: <ConditionText condition={fx.condition} />
         </p>
       </div>
 
@@ -378,14 +387,32 @@ function FlipPrompt({ reduced }: { reduced: boolean }) {
   );
 }
 
-function Reel({ cx, spinning }: { cx: number; spinning: boolean }) {
+function Reel({ cx, spinning, wobblePct }: { cx: number; spinning: boolean; wobblePct: number }) {
+  // Wobble: the turn is split into quarters whose timing is stretched and squeezed by
+  // wobblePct, so the angular speed varies by about that percent. Linear and gentle.
+  const w = Math.min(Math.max(wobblePct, 0), 30) / 100;
+  const wobbling = spinning && w > 0;
+  const animate = wobbling
+    ? { rotate: [0, 90, 180, 270, 360] }
+    : { rotate: spinning ? 360 : 0 };
+  const transition = !spinning
+    ? { duration: 0 }
+    : wobbling
+      ? {
+          repeat: Infinity,
+          duration: 2,
+          ease: "linear" as const,
+          times: [0, 0.25 * (1 + w), 0.5, 0.5 + 0.25 * (1 - w), 1],
+        }
+      : { repeat: Infinity, duration: 2, ease: "linear" as const };
   return (
     <motion.g
       data-testid="reel"
       data-spinning={spinning}
+      data-wobble={wobbling ? wobblePct : 0}
       style={{ transformBox: "fill-box", transformOrigin: "center" }}
-      animate={{ rotate: spinning ? 360 : 0 }}
-      transition={spinning ? { repeat: Infinity, duration: 2, ease: "linear" } : { duration: 0 }}
+      animate={animate}
+      transition={transition}
     >
       <circle cx={cx} cy={78} r={22} className="fill-plum-950" />
       <circle cx={cx} cy={78} r={8} className="fill-plastic-300" />
@@ -408,32 +435,88 @@ function Cassette({
   title,
   side,
   spinning,
+  fx,
 }: {
   title: string;
   side: "A" | "B";
   spinning: boolean;
+  fx: EffectSettings;
 }) {
   const sideFill = side === "A" ? "fill-label-orange" : "fill-label-teal";
+  const shortTitle = title.length > 28 ? `${title.slice(0, 27)}…` : title;
+  const bleed = fx.colourBleedPx;
+  const dead = fx.condition === "Dead";
   return (
-    <svg
-      viewBox="0 0 320 180"
-      role="img"
-      aria-label={`Cassette, side ${side}`}
-      className="mt-4 w-full max-w-md"
+    <div
+      data-testid="cassette"
+      data-condition={fx.condition}
+      className={`relative mt-4 w-full max-w-md ${dead ? "grayscale" : ""}`}
     >
-      <rect x={4} y={4} width={312} height={172} rx={10} className="fill-plastic-100 stroke-plastic-300" strokeWidth={2} />
-      <rect x={24} y={16} width={272} height={60} rx={4} className={sideFill} />
-      <rect x={24} y={16} width={272} height={60} rx={4} className="fill-plastic-100" opacity={0.35} />
-      <text x={34} y={40} className="fill-plum-950 font-type" fontSize={16}>
-        {title.length > 28 ? `${title.slice(0, 27)}…` : title}
-      </text>
-      <text x={34} y={64} className="fill-plum-950 font-type" fontSize={14}>
-        SIDE {side}
-      </text>
-      <rect x={60} y={96} width={200} height={62} rx={31} className="fill-plum-900" />
-      <Reel cx={105} spinning={spinning} />
-      <Reel cx={215} spinning={spinning} />
-    </svg>
+      <svg viewBox="0 0 320 180" role="img" aria-label={`Cassette, side ${side}`} className="w-full">
+        <rect x={4} y={4} width={312} height={172} rx={10} className="fill-plastic-100 stroke-plastic-300" strokeWidth={2} />
+        <rect x={24} y={16} width={272} height={60} rx={4} className={sideFill} />
+        <rect x={24} y={16} width={272} height={60} rx={4} className="fill-plastic-100" opacity={0.35} />
+        {bleed > 0 && (
+          <g data-testid="colour-bleed" data-bleed-px={bleed} aria-hidden="true" opacity={0.7}>
+            <g transform={`translate(${-bleed} 0)`} className="fill-danger">
+              <text x={34} y={40} className="font-type" fontSize={16}>{shortTitle}</text>
+              <text x={34} y={64} className="font-type" fontSize={14}>SIDE {side}</text>
+            </g>
+            <g transform={`translate(${bleed} 0)`} className="fill-label-tealBright">
+              <text x={34} y={40} className="font-type" fontSize={16}>{shortTitle}</text>
+              <text x={34} y={64} className="font-type" fontSize={14}>SIDE {side}</text>
+            </g>
+          </g>
+        )}
+        <text x={34} y={40} className="fill-plum-950 font-type" fontSize={16}>
+          {shortTitle}
+        </text>
+        <text x={34} y={64} className="fill-plum-950 font-type" fontSize={14}>
+          SIDE {side}
+        </text>
+        <rect x={60} y={96} width={200} height={62} rx={31} className="fill-plum-900" />
+        <Reel cx={105} spinning={spinning} wobblePct={fx.reelWobblePct} />
+        <Reel cx={215} spinning={spinning} wobblePct={fx.reelWobblePct} />
+        {fx.flickerHz > 0 && (
+          // Glow layer only. Each opacity change takes 1/flickerHz s (125 ms at 8 Hz).
+          <motion.rect
+            data-testid="flicker-layer"
+            data-flicker-hz={fx.flickerHz}
+            aria-hidden="true"
+            x={4}
+            y={4}
+            width={312}
+            height={172}
+            rx={10}
+            className="pointer-events-none fill-condition-haunted"
+            initial={{ opacity: 0.02 }}
+            animate={{ opacity: 0.22 }}
+            transition={{
+              duration: 1 / fx.flickerHz,
+              repeat: Infinity,
+              repeatType: "reverse",
+              ease: "linear",
+            }}
+          />
+        )}
+        {fx.condition === "Haunted" && (
+          <g aria-hidden="true" className="pointer-events-none">
+            <path
+              data-testid="shadow-figure"
+              d="M6 176 V120 C6 100 14 92 22 92 C30 92 38 100 38 120 V176 Z"
+              className="fill-plum-950"
+              opacity={0.45}
+            />
+            <path
+              data-testid="shadow-figure"
+              d="M282 176 V110 C282 88 292 80 300 80 C308 80 316 88 316 110 V176 Z"
+              className="fill-plum-950"
+              opacity={0.35}
+            />
+          </g>
+        )}
+      </svg>
+    </div>
   );
 }
 
