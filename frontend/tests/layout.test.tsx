@@ -11,11 +11,54 @@ vi.mock("../src/api/tapes", async (importOriginal) => {
     getSettings: vi.fn(),
     putSettings: vi.fn(),
     listTapes: vi.fn(),
+    getTape: vi.fn(),
   };
 });
 
 const mockGetSettings = vi.mocked(tapesApi.getSettings);
 const mockListTapes = vi.mocked(tapesApi.listTapes);
+const mockGetTape = vi.mocked(tapesApi.getTape);
+
+function makePlayerTape(): tapesApi.TapeWire {
+  return {
+    id: "abc-123",
+    title: "Biology",
+    length: "C60",
+    created_at: "",
+    is_sample: false,
+    virtual_now: "",
+    side_a: [
+      {
+        id: "trk1",
+        side: "A",
+        position: 0,
+        kind: "track",
+        name: "Cells",
+        minutes: 10,
+        key_terms: ["a", "b", "c"],
+        memory: {
+          recorded: true,
+          strength: 90,
+          condition: "Mint",
+          stability_days: 3,
+          review_count: 1,
+          last_reviewed_at: null,
+          next_review_at: null,
+          due: false,
+        },
+      },
+    ],
+    side_b: [],
+    remaining_a: 0,
+    remaining_b: 0,
+    strength: 90,
+    condition: "Mint",
+    due_count: 0,
+    next_review_at: null,
+    ghost: false,
+    stats: { sessions: 0, focus_minutes: 0, tracks_completed: 0, tracks_skipped: 0 },
+  };
+}
 
 function makeSettings(overrides: Partial<tapesApi.SettingsWire> = {}): tapesApi.SettingsWire {
   return {
@@ -79,14 +122,18 @@ describe("base layout and routes (task 7.4)", () => {
     expect(screen.getByRole("heading", { name: "The Shelf" })).toBeInTheDocument();
   });
 
-  it("renders the player route with condition text", () => {
+  it("renders the player route with condition text", async () => {
+    mockGetTape.mockResolvedValue(makePlayerTape());
     window.history.pushState({}, "", "/play/abc-123");
     render(<App />);
     expect(
       screen.getByRole("heading", { name: "Cassette Player" }),
     ).toBeInTheDocument();
-    expect(screen.getByText("abc-123")).toBeInTheDocument();
-    expect(screen.getByTestId("condition-text")).toHaveTextContent("Mint");
+    expect(await screen.findByTestId("lcd")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Cassette Player" }),
+    ).toBeInTheDocument();
+    expect(screen.getByTestId("condition-text")).toBeInTheDocument();
     window.history.pushState({}, "", "/");
   });
 

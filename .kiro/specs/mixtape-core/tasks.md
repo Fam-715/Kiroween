@@ -138,7 +138,7 @@ scoring, stability and strength, and applies each event once (idempotent on
   - Property tests: countdown never negative or above the item duration; every item ends in
     exactly one state for any button sequence.
   - _Requirements: 3.1–3.9, 3.11, 3.12, 12.11_
-- [ ] 9.2 `CassettePlayer` component: SVG cassette, reels, LCD, buttons (including REC),
+- [x] 9.2 `CassettePlayer` component: SVG cassette, reels, LCD, buttons (including REC),
   flip animation, tape map of tracks, keyboard controls, aria labels
   - _Requirements: 3.7, 3.10_
 - [x] 9.3 Send events with `client_event_id`, show the REC prompt when a track ends, and
