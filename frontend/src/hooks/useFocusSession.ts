@@ -27,6 +27,14 @@ export interface FocusPenalty {
   /** Track ids whose stability dropped. */
   trackIds: string[];
   message: string;
+  /** Largest stability drop in percent across the penalised tracks, from the server response. */
+  percent: number;
+}
+
+/** Percent stability drop for one track; 0 when `before` is not positive (no NaN/Infinity). */
+export function penaltyPercent(before: number, after: number): number {
+  if (!(before > 0) || !Number.isFinite(before) || !Number.isFinite(after)) return 0;
+  return Math.round((1 - after / before) * 100);
 }
 
 export interface FocusSession extends TapePlayer {
@@ -179,6 +187,9 @@ export function useFocusSession(
               ? null
               : {
                   trackIds: ids,
+                  percent: Math.max(
+                    ...res.penalty.map((p) => penaltyPercent(p.stability_before, p.stability_after)),
+                  ),
                   message: `The tape remembers… ${ids.length} ${
                     ids.length === 1 ? "track" : "tracks"
                   } faded a little.`,

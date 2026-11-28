@@ -6,7 +6,8 @@ import * as sessionsApi from "../src/api/sessions";
 import type { TapeWire } from "../src/api/tapes";
 import { RetryQueue } from "../src/domain/retryQueue";
 import { useFocusAudio } from "../src/hooks/useFocusAudio";
-import { useFocusSession } from "../src/hooks/useFocusSession";
+import { penaltyDetail } from "../src/components/BreakSkipToast";
+import { penaltyPercent, useFocusSession } from "../src/hooks/useFocusSession";
 
 vi.mock("../src/api/sessions", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../src/api/sessions")>();
@@ -120,6 +121,41 @@ describe("useFocusSession", () => {
     await waitFor(() => expect(result.current.lastPenalty).not.toBeNull());
     expect(result.current.lastPenalty?.trackIds).toEqual(["t1"]);
     expect(result.current.lastPenalty?.message).toContain("The tape remembers");
+  });
+
+  it("derives the toast percent from a skipped track's server stability (10 -> 9.5)", async () => {
+    postEvent.mockResolvedValue(
+      eventOut([{ track_id: "t1", stability_before: 10, stability_after: 9.5 }]),
+    );
+    const { result } = renderHook(() => useFocusSession(TAPE, { queue: fast(), chime: chime() }));
+    act(() => result.current.play());
+    act(() => result.current.ff());
+    await waitFor(() => expect(result.current.lastPenalty).not.toBeNull());
+    expect(result.current.lastPenalty?.percent).toBe(5);
+    expect(penaltyDetail(result.current.lastPenalty!)).toBe("Memory span −5% on 1 track");
+  });
+
+  it("derives the toast percent from a skipped interlude (10 -> 9), max across tracks", async () => {
+    postEvent
+      .mockResolvedValueOnce(eventOut())
+      .mockResolvedValue(
+        eventOut([
+          { track_id: "t1", stability_before: 10, stability_after: 9 },
+          { track_id: "t2", stability_before: 10, stability_after: 9.5 },
+        ]),
+      );
+    const { result } = renderHook(() => useFocusSession(TAPE, { queue: fast(), chime: chime() }));
+    act(() => result.current.play());
+    act(() => result.current.ff());
+    act(() => result.current.ff());
+    await waitFor(() => expect(result.current.lastPenalty).not.toBeNull());
+    expect(result.current.lastPenalty?.percent).toBe(10);
+    expect(penaltyDetail(result.current.lastPenalty!)).toBe("Memory span −10% on 2 tracks");
+  });
+
+  it("penaltyPercent guards a zero stability_before", () => {
+    expect(penaltyPercent(0, 0)).toBe(0);
+    expect(penaltyPercent(10, 9)).toBe(10);
   });
 
   it("treats a 409 as success so later events still go out", async () => {

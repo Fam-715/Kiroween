@@ -78,8 +78,16 @@ const config: Config = {
         "glow-faint": "0 0 8px 1px rgba(155,107,214,0.35)",
         "glow-medium": "0 0 16px 3px rgba(155,107,214,0.55)",
         "glow-strong": "0 0 28px 8px rgba(155,107,214,0.8)",
+        // Colour split for the break-skip glitch (label orange left, label teal right).
+        "glitch-split": "-2px 0 0 rgba(232,114,44,0.8), 2px 0 0 rgba(44,140,140,0.8)",
       },
       keyframes: {
+        // Jitter for the 1.2 s break-skip glitch on affected tape-map segments.
+        "glitch-jitter": {
+          // Two states per 0.25 s cycle: a change every 125 ms (8 Hz max, per design system).
+          "0%": { transform: "translate(-2px, 1px)" },
+          "50%": { transform: "translate(2px, -1px)" },
+        },
         // Slow (4 s) opacity breathing of the glow overlay only, never the text.
         "glow-flicker": {
           "0%, 100%": { opacity: "1" },
@@ -88,6 +96,7 @@ const config: Config = {
       },
       animation: {
         "glow-flicker": "glow-flicker 4s ease-in-out infinite",
+        "glitch-jitter": "glitch-jitter 0.25s step-end infinite",
       },
     },
   },

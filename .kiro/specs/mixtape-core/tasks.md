@@ -178,7 +178,7 @@ and the track's strength, then skip a break and watch stability drop in the resp
     and distortion by the track's current condition; static only when Dead; "No recording on
     this device" with REC; delete recordings when tracks or tapes are deleted.
   - _Requirements: 7.1–7.8, 11.6_
-- [ ] 13. Break-skip feedback
+- [x] 13. Break-skip feedback
   - Toast "The tape remembers…" with the affected count, a 1.2 s glitch on the affected
     tracks in the tape map, and a static outline with reduced motion.
   - Component test: the toast and affected tracks show after a skipped interlude.
